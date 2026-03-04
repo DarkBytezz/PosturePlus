@@ -1,0 +1,12 @@
+{
+  "name": "postureplus",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.30.3",
+  "devDependencies": {
+    "turbo": "^2.8.12"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.98.0"
+  }
+}
