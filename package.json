@@ -3,21 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "packageManager": "pnpm@10.30.3",
-
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
-
   "scripts": {
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "dev": "turbo run dev"
   },
-
   "devDependencies": {
     "turbo": "^2.8.12"
-  },
-
-  "dependencies": {
-    "@supabase/supabase-js": "^2.98.0"
   }
 }
