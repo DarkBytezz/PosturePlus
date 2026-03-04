@@ -3,10 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "packageManager": "pnpm@10.30.3",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev"
