@@ -32,3 +32,4 @@ pnpm-debug.log*
 # OS
 Thumbs.db
 coverage
+.pnpm-store
