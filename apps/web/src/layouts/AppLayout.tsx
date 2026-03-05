@@ -127,7 +127,7 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
                 className="font-semibold text-sm tracking-tight whitespace-nowrap leading-tight"
                 style={{ fontFamily: "'DM Serif Display', serif" }}
               >
-                PosturePlus
+                Posture+
               </p>
               <p className="text-[9px] tracking-widest uppercase whitespace-nowrap" style={{ color: "var(--text-faint)" }}>
                 Bio Monitor
