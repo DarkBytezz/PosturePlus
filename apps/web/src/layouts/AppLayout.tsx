@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { useTheme } from "../lib/useTheme";
 import { usePosture } from "../context/PostureContext";
-import { useAuth } from "../hooks/useAuth";
 
 interface Props {
+  isGuest?: boolean;
+  onExitGuest?: () => void;
   children: ReactNode;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
@@ -57,15 +58,10 @@ const navItems = [
   },
 ];
 
-export default function AppLayout({ children, activeTab = "dashboard", onTabChange }: Props) {
+export default function AppLayout({ children, activeTab = "dashboard", onTabChange, isGuest = false, onExitGuest }: Props) {
   const { theme, setTheme } = useTheme();
   const { psi, zone, isCalibrated } = usePosture();
-  const { user, signOut } = useAuth();
   const collapsed = false;
-
-  const userName   = user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "User";
-  const userEmail  = user?.email ?? "";
-  const userAvatar = user?.user_metadata?.avatar_url ?? null;
 
   return (
     <div
@@ -224,54 +220,21 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
           className={`p-3 ${collapsed ? "flex justify-center" : ""}`}
         >
           <div className={`flex items-center gap-2.5 px-2 py-2 rounded-xl ${collapsed ? "" : "w-full"}`}>
-            {/* Avatar — Google profile pic or initials */}
-            {userAvatar ? (
-              <img
-                src={userAvatar}
-                alt={userName}
-                className="w-8 h-8 rounded-full shrink-0 object-cover"
-                style={{ border: "1px solid var(--accent-primary)" }}
-              />
-            ) : (
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                style={{
-                  background: "var(--accent-glow-strong)",
-                  color: "var(--accent-primary-bright)",
-                  border: "1px solid var(--accent-primary)",
-                }}
-              >
-                {userName.charAt(0).toUpperCase()}
-              </div>
-            )}
-
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
+              style={{
+                background: "var(--accent-glow-strong)",
+                color: "var(--accent-secondary)",
+                border: "1px solid var(--accent-primary)",
+              }}
+            >
+              U
+            </div>
             {!collapsed && (
-              <div className="flex-1 overflow-hidden">
-                <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>
-                  {userName}
-                </p>
-                <p className="text-[10px] truncate" style={{ color: "var(--text-muted)" }}>
-                  {userEmail}
-                </p>
+              <div className="overflow-hidden">
+                <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>User</p>
+                <p className="text-[10px] truncate" style={{ color: "var(--text-muted)" }}>user@email.com</p>
               </div>
-            )}
-
-            {/* Sign out button */}
-            {!collapsed && (
-              <button
-                onClick={signOut}
-                title="Sign out"
-                className="shrink-0 p-1.5 rounded-lg transition-all duration-150"
-                style={{ color: "var(--text-muted)" }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = "var(--accent-danger)"}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
-              </button>
             )}
           </div>
         </div>
@@ -356,6 +319,21 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
           </div>
         </header>
 
+        {isGuest && (
+          <div style={{
+            background: "linear-gradient(90deg, #B07D3A, #8B6520)",
+            color: "white", padding: "0.5rem 2rem",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            fontSize: "0.78rem",
+          }}>
+            <span>👤 Guest mode — data is temporary and will vanish on reload.</span>
+            <button onClick={onExitGuest} style={{
+              background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.3)",
+              color: "white", borderRadius: "100px", padding: "0.25rem 0.9rem",
+              fontSize: "0.75rem", cursor: "pointer",
+            }}>Sign in to save →</button>
+          </div>
+        )}
         <main className="flex-1 overflow-auto">
           {children}
         </main>

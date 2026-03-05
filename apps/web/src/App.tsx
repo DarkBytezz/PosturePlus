@@ -3,26 +3,41 @@ import AppLayout from "./layouts/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Monitor from "./pages/Monitor";
 import Reports from "./pages/Reports";
-import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
 import { PostureProvider } from "./context/PostureContext";
 import { useAuth } from "./hooks/useAuth";
 
 function AppInner() {
-  const { user, loading} = useAuth();
+  const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [isGuest, setIsGuest]     = useState(false);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center"
-        style={{ background: "var(--bg-primary)" }}>
-        <span className="w-2 h-2 rounded-full animate-blink"
-          style={{ background: "var(--accent-primary)" }} />
+        style={{ background: "#F5EFE4" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "1.4rem", fontWeight: 700, color: "#2C1810",
+            marginBottom: "0.5rem",
+          }}>
+            Posture<span style={{ color: "#5C7A3E" }}>+</span>
+          </div>
+          <span className="w-2 h-2 rounded-full animate-blink inline-block"
+            style={{ background: "#5C7A3E" }} />
+        </div>
       </div>
     );
   }
 
-  // Only gate behind login if Supabase is configured
-  if (!user) return <LoginPage />;
+  if (!user && !isGuest) {
+    return (
+      <LandingPage
+        onGuestEnter={() => setIsGuest(true)}
+      />
+    );
+  }
 
   const renderPage = () => {
     switch (activeTab) {
@@ -39,7 +54,7 @@ function AppInner() {
   };
 
   return (
-    <AppLayout activeTab={activeTab} onTabChange={setActiveTab}>
+    <AppLayout activeTab={activeTab} onTabChange={setActiveTab} isGuest={isGuest} onExitGuest={() => setIsGuest(false)}>
       {renderPage()}
     </AppLayout>
   );
