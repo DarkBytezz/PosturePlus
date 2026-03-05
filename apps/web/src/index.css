@@ -4,61 +4,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── LIGHT MODE: Warm ivory + rich brown + amber — no green tint ─── */
+/* ─── LIGHT MODE: Rich parchment brown & warm beige ─── */
 :root {
-  --bg-primary: #F5F0E8;
-  --bg-secondary: #EDE5D4;
-  --bg-elevated: #E8DECA;
-  --bg-glass: rgba(245, 240, 232, 0.65);
-  --bg-card-glass: rgba(255, 252, 245, 0.55);
+  --bg-primary:    #EDE0C8;
+  --bg-secondary:  #E0CFA8;
+  --bg-elevated:   #D4BC90;
+  --bg-glass:      rgba(237, 224, 200, 0.72);
+  --bg-card-glass: rgba(250, 242, 225, 0.65);
 
-  --text-primary: #1A1008;
-  --text-secondary: #2E1F0F;
-  --text-muted: #5C3D1E;
-  --text-faint: #8A6040;
+  --text-primary:   #1A0F04;
+  --text-secondary: #2E1E08;
+  --text-muted:     #5A3A14;
+  --text-faint:     #8C6030;
 
-  /* Warm brown — primary brand in light mode */
-  --accent-primary: #7C4A1E;
-  --accent-primary-bright: #9A5E28;
-  --accent-primary-dim: #5C3414;
-  --accent-glow: rgba(124, 74, 30, 0.12);
-  --accent-glow-strong: rgba(124, 74, 30, 0.22);
+  /* Warm brown — primary brand */
+  --accent-primary:        #7B4A1E;
+  --accent-primary-bright: #9C6028;
+  --accent-primary-dim:    #5A3412;
+  --accent-glow:           rgba(123, 74, 30, 0.16);
+  --accent-glow-strong:    rgba(123, 74, 30, 0.32);
 
-  /* Amber gold — luxury complement */
-  --accent-gold: #B8860B;
-  --accent-gold-bright: #D4A017;
-  --accent-gold-light: rgba(212, 160, 23, 0.15);
-  --accent-gold-glow: rgba(184, 134, 11, 0.20);
+  /* Amber gold */
+  --accent-gold:        #A8720A;
+  --accent-gold-bright: #C48818;
+  --accent-gold-light:  rgba(168, 114, 10, 0.18);
+  --accent-gold-glow:   rgba(168, 114, 10, 0.25);
 
-  /* Dusty teal — muted data accent */
-  --accent-teal: #4A7C7A;
-  --accent-teal-bright: #5E9A98;
-  --accent-teal-glow: rgba(74, 124, 122, 0.15);
+  /* Muted teal — data accent */
+  --accent-teal:        #2E6A58;
+  --accent-teal-bright: #3D8870;
+  --accent-teal-glow:   rgba(46, 106, 88, 0.18);
 
-  /* Danger / warn / success */
-  --accent-danger: #C0392B;
-  --accent-warn: #D4820A;
-  --accent-success: #3A7A3A;
+  /* Status */
+  --accent-danger:  #B02A18;
+  --accent-warn:    #B86C10;
+  --accent-success: #2E6A38;
 
-  --text-on-accent: #FFF8F0;
-  --text-on-gold: #1A1200;
+  --text-on-accent: #FFF6E8;
+  --text-on-gold:   #1A0A00;
 
-  --border-subtle: rgba(92, 61, 30, 0.08);
-  --border-medium: rgba(92, 61, 30, 0.14);
-  --border-gold: rgba(184, 134, 11, 0.25);
-  --border-green: rgba(124, 74, 30, 0.2);
+  --border-subtle: rgba(100, 55, 10, 0.10);
+  --border-medium: rgba(100, 55, 10, 0.18);
+  --border-gold:   rgba(168, 114, 10, 0.32);
+  --border-green:  rgba(123, 74, 30, 0.24);
 
-  --shadow-card: 0 4px 28px rgba(60,30,10,0.08), 0 1px 6px rgba(60,30,10,0.04);
-  --shadow-elevated: 0 12px 48px rgba(60,30,10,0.13), 0 3px 12px rgba(60,30,10,0.06);
-  --shadow-glow-green: 0 0 32px rgba(124, 74, 30, 0.15), 0 4px 20px rgba(60,30,10,0.08);
-  --shadow-glow-gold: 0 0 32px rgba(184, 134, 11, 0.18), 0 4px 20px rgba(60,30,10,0.08);
+  --shadow-card:       0 4px 28px rgba(90, 45, 5, 0.13), 0 1px 6px rgba(90,45,5,0.07);
+  --shadow-elevated:   0 12px 48px rgba(90, 45, 5, 0.22), 0 3px 12px rgba(90,45,5,0.12);
+  --shadow-glow-green: 0 0 32px rgba(123,74,30,0.22), 0 4px 20px rgba(90,45,5,0.12);
+  --shadow-glow-gold:  0 0 32px rgba(168,114,10,0.24), 0 4px 20px rgba(90,45,5,0.12);
 
-  --gradient-hero: linear-gradient(135deg, #F5F0E8 0%, #ECE2CD 50%, #E2D4B8 100%);
-  --gradient-green: linear-gradient(135deg, #7C4A1E 0%, #9A5E28 100%);
-  --gradient-gold: linear-gradient(135deg, #B8860B 0%, #D4A017 100%);
-  --gradient-card: linear-gradient(145deg, rgba(255,252,245,0.6) 0%, rgba(232,218,195,0.4) 100%);
+  --gradient-hero:  linear-gradient(135deg, #EDE0C8 0%, #D9C090 50%, #C8A870 100%);
+  --gradient-green: linear-gradient(135deg, #7B4A1E 0%, #9C6028 100%);
+  --gradient-gold:  linear-gradient(135deg, #A8720A 0%, #C48818 100%);
+  --gradient-card:  linear-gradient(145deg, rgba(250,242,225,0.70) 0%, rgba(210,185,145,0.45) 100%);
 
-  --grain-opacity: 0.03;
+  --grain-opacity: 0.04;
 }
 
 /* ─── DARK MODE: Near-black + emerald + champagne gold + teal ─── */
@@ -152,8 +152,9 @@ body {
   width: 55%;
   height: 65%;
   background: radial-gradient(ellipse, var(--accent-glow-strong) 0%, transparent 70%);
-  filter: blur(60px);
+  filter: blur(50px);
   animation: mesh-drift-a 18s ease-in-out infinite alternate;
+  opacity: 1.2;
 }
 
 .mesh-bg::after {
