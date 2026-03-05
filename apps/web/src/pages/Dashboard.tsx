@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PSIRing from "../components/dashboard/PSIRing";
 import PSITrendChart from "../components/dashboard/PSITrendChart";
 import InsightsCard from "../components/dashboard/InsightsCard";
@@ -8,6 +8,12 @@ import { usePosture } from "../context/PostureContext";
 export default function Dashboard() {
   const { psi: rawPsi, isCalibrated, weeklyData, stats, alerts, autoRecalibs, accuracy, durationFormatted } = usePosture();
   const livePsi = Math.round(rawPsi);
+
+  useEffect(() => {
+    // Scroll the parent scroll container to top when dashboard mounts
+    window.scrollTo(0, 0);
+    document.querySelector("main")?.scrollTo(0, 0);
+  }, []);
 
   // When user hovers a chart dot, ring shows that day's PSI instead of live
   const [hoveredPsi,   setHoveredPsi]   = useState<number | null>(null);
@@ -79,7 +85,7 @@ export default function Dashboard() {
       </div>
 
       <div
-        className="relative flex flex-col h-screen overflow-hidden"
+        className="relative flex flex-col min-h-screen"
         style={{ padding: "2rem", gap: "1.6rem", zIndex: 1 }}
       >
         {/* HEADER */}
