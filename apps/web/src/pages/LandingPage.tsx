@@ -834,7 +834,7 @@ export default function LandingPage({ onGuestEnter }: {
               PosturePlus: A Multiplicative Temporal<br />Stability Framework for Real-Time<br />Posture Monitoring
             </div>
             <div className="research-meta">
-              Manan Verma, Raghav Mehra · Chandigarh University<br />
+              Manan Verma · Chandigarh University<br />
               <span style={{ color: "#5A9BD4", marginTop: "0.4rem", display: "block" }}>
                 22nd IEEE International Colloquium on Signal Processing & Its Applications<br />
                 Westin Hotel, Kuala Lumpur · May 1-2, 2026
