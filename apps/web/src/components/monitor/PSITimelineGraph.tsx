@@ -8,12 +8,14 @@ type Props = {
   isCalibrated: boolean;
 };
 
-// ── Zone color ────────────────────────────────────────────────────────────────
-const ZONE_COLOR: Record<Zone, string> = {
-  GREEN:  "#4ade80",
-  YELLOW: "#fbbf24",
-  RED:    "#ff5f52",
-};
+// ── Zone color — uses CSS vars so light/dark mode both look correct ──────────
+function getZoneColor(zone: Zone): string {
+  const el = document.documentElement;
+  const style = getComputedStyle(el);
+  if (zone === "GREEN")  return style.getPropertyValue("--chart-good").trim()   || "#2E7D32";
+  if (zone === "YELLOW") return style.getPropertyValue("--chart-caution").trim()|| "#B86C10";
+  return                        style.getPropertyValue("--chart-poor").trim()   || "#B02A18";
+}
 
 // ── Catmull-Rom smooth path ───────────────────────────────────────────────────
 function catmullRom(pts: { x: number; y: number }[], T = 0.4): string {
@@ -68,7 +70,7 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
     : "";
 
   // Gradient stop color based on current zone
-  const lineColor = ZONE_COLOR[zone];
+  const lineColor = getZoneColor(zone);
 
   // Y-axis grid lines at 25 / 50 / 75 / 100
   const gridLines = [25, 50, 75, 100];
@@ -183,22 +185,22 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
           <g key={v}>
             <line
               x1={PAD.left} y1={toY(v)} x2={PAD.left + innerW} y2={toY(v)}
-              stroke="rgba(255,255,255,0.09)" strokeWidth="1"
+              stroke="var(--chart-grid)" strokeWidth="1"
               strokeDasharray={v === 100 ? "none" : "3 4"}
             />
             <text
               x={PAD.left - 6} y={toY(v) + 4}
               textAnchor="end" fontSize="8" fontFamily="'DM Mono', monospace"
-              fill="rgba(255,255,255,0.35)"
+              fill="var(--chart-text)"
             >{v}</text>
           </g>
         ))}
 
         {/* Zone threshold labels */}
         <text x={PAD.left + 4} y={toY(70) - 3} fontSize="7"
-          fill="rgba(251,191,36,0.6)" fontFamily="monospace">CAUTION</text>
+          fill="var(--chart-caution, rgba(251,191,36,0.7))" fontFamily="monospace">CAUTION</text>
         <text x={PAD.left + 4} y={toY(40) - 3} fontSize="7"
-          fill="rgba(255,95,82,0.6)" fontFamily="monospace">POOR</text>
+          fill="var(--chart-poor, rgba(255,95,82,0.7))" fontFamily="monospace">POOR</text>
 
         {/* ── Empty state ─────────────────────────────────────────────────── */}
         {raw.length === 0 && (
@@ -206,14 +208,14 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
             <text
               x={W / 2} y={H / 2 - 8}
               textAnchor="middle" fontSize="11" fontFamily="'DM Mono', monospace"
-              fill="rgba(255,255,255,0.4)"
+              fill="var(--chart-text)"
             >
               {isCalibrated ? "Collecting data…" : "Calibrate to begin"}
             </text>
             <text
               x={W / 2} y={H / 2 + 10}
               textAnchor="middle" fontSize="8" fontFamily="monospace"
-              fill="rgba(255,255,255,0.25)"
+              fill="var(--chart-text)" opacity="0.6"
             >
               {isCalibrated ? "Graph appears after first sample" : "PSI timeline will appear here"}
             </text>
@@ -250,7 +252,7 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
             <line
               x1={hovered.x} y1={PAD.top}
               x2={hovered.x} y2={H - PAD.bottom}
-              stroke="rgba(255,255,255,0.15)" strokeWidth="1" strokeDasharray="3 3"
+              stroke="var(--chart-grid)" strokeWidth="1" strokeDasharray="3 3"
             />
             <circle
               cx={hovered.x} cy={hovered.y} r="5"
@@ -264,7 +266,7 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
                 x={Math.min(hovered.x - 22, W - PAD.right - 44)}
                 y={hovered.y - 26}
                 width="44" height="18" rx="9"
-                fill="rgba(10,20,12,0.92)"
+                fill="var(--bg-elevated)"
                 stroke={lineColor} strokeWidth="0.8" strokeOpacity="0.6"
               />
               <text
@@ -308,7 +310,7 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
           return labels.map(({ xpos, label }) => (
             <text key={label} x={xpos} y={H - 4}
               textAnchor="middle" fontSize="7.5" fontFamily="'DM Mono', monospace"
-              fill="rgba(255,255,255,0.38)"
+              fill="var(--chart-text)"
             >{label}</text>
           ));
         })()}

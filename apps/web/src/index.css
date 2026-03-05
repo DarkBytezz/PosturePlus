@@ -59,6 +59,13 @@
   --gradient-card:  linear-gradient(145deg, rgba(250,242,225,0.70) 0%, rgba(210,185,145,0.45) 100%);
 
   --grain-opacity: 0.04;
+
+  /* Semantic chart colors — used by SVG charts */
+  --chart-good:   #2E7D32;
+  --chart-caution:#B86C10;
+  --chart-poor:   #B02A18;
+  --chart-text:   rgba(90, 58, 20, 0.55);
+  --chart-grid:   rgba(90, 58, 20, 0.12);
 }
 
 /* ─── DARK MODE: Near-black + emerald + champagne gold + teal ─── */
@@ -118,6 +125,13 @@
   --gradient-card: linear-gradient(145deg, rgba(18,28,20,0.7) 0%, rgba(10,18,12,0.5) 100%);
 
   --grain-opacity: 0.055;
+
+  /* Semantic chart colors */
+  --chart-good:   #4ade80;
+  --chart-caution:#fbbf24;
+  --chart-poor:   #ff5f52;
+  --chart-text:   rgba(255, 255, 255, 0.38);
+  --chart-grid:   rgba(255, 255, 255, 0.09);
 }
 
 /* ─── BASE ─── */
@@ -270,12 +284,12 @@ body {
 
 /* ─── STATUS BADGES ─── */
 .badge-excellent {
-  background: rgba(46, 204, 113, 0.12);
+  background: var(--accent-glow);
   color: var(--accent-primary-bright);
-  border: 1px solid rgba(46, 204, 113, 0.25);
+  border: 1px solid var(--border-green);
 }
 .badge-moderate {
-  background: rgba(240, 192, 64, 0.12);
+  background: var(--accent-gold-light);
   color: var(--accent-gold-bright);
   border: 1px solid var(--border-gold);
 }
