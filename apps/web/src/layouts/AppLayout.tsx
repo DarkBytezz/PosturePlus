@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { useTheme } from "../lib/useTheme";
 import { usePosture } from "../context/PostureContext";
 import { useAuth } from "../hooks/useAuth";
@@ -64,6 +65,7 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
   const { psi, zone, isCalibrated } = usePosture();
   const { user, signOut } = useAuth();
   const collapsed = false;
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const userName   = user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "Guest";
   const userEmail  = user?.email ?? "guest mode";
@@ -247,7 +249,7 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
               </div>
             )}
             {!collapsed && user && (
-              <button onClick={signOut} title="Sign out"
+              <button onClick={() => setConfirmLogout(true)} title="Sign out"
                 className="shrink-0 p-1.5 rounded-lg transition-all duration-150"
                 style={{ color: "var(--text-muted)" }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = "var(--accent-danger)"}
@@ -361,6 +363,46 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
           {children}
         </main>
       </div>
+
+      {/* ── Logout confirm dialog ─────────────────────────────────────────── */}
+      {confirmLogout && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }} onClick={() => setConfirmLogout(false)}>
+          <div style={{
+            background: "var(--bg-elevated)",
+            border: "1px solid var(--border-medium)",
+            borderRadius: "20px", padding: "2rem",
+            width: "340px", boxShadow: "var(--shadow-elevated)",
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem", textAlign: "center" }}>👋</div>
+            <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.1rem", fontWeight: 600, color: "var(--text-primary)", textAlign: "center", marginBottom: "0.4rem" }}>
+              Sign out?
+            </div>
+            <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", textAlign: "center", marginBottom: "1.5rem", lineHeight: 1.5 }}>
+              Your session data is saved. You can sign back in anytime.
+            </div>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button onClick={() => setConfirmLogout(false)} style={{
+                flex: 1, padding: "0.65rem", borderRadius: "12px",
+                background: "var(--bg-primary)", border: "1px solid var(--border-medium)",
+                color: "var(--text-muted)", fontSize: "0.82rem", fontWeight: 500, cursor: "pointer",
+              }}>
+                Cancel
+              </button>
+              <button onClick={() => { setConfirmLogout(false); signOut(); }} style={{
+                flex: 1, padding: "0.65rem", borderRadius: "12px",
+                background: "var(--accent-danger)", border: "none",
+                color: "white", fontSize: "0.82rem", fontWeight: 600, cursor: "pointer",
+              }}>
+                Yes, sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

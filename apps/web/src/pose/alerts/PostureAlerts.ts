@@ -78,8 +78,11 @@ export class PostureAlerts {
 
   private _fire(redDurationMs: number) {
     const escalated = redDurationMs >= this.settings.escalateAfterSec * 1000;
-    if (this.settings.enableSound)        this._playBeep(escalated);
-    if (this.settings.enableNotification) this._sendNotification(escalated, Math.floor(redDurationMs / 1000));
+    if (this.settings.enableSound) this._playBeep(escalated);
+    // notification only when user is on another tab
+    if (this.settings.enableNotification && document.visibilityState !== "visible") {
+      this._sendNotification(escalated, Math.floor(redDurationMs / 1000));
+    }
   }
 
   private _playBeep(escalated: boolean) {
@@ -109,7 +112,6 @@ export class PostureAlerts {
   }
 
   private _sendNotification(escalated: boolean, secondsInRed: number) {
-    if (document.visibilityState === "visible") return;
     if (Notification.permission !== "granted") return;
 
     const title = escalated

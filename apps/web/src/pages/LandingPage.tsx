@@ -538,7 +538,11 @@ export default function LandingPage({ onGuestEnter }: {
       display: flex; flex-direction: column; gap: 0.3rem;
     }
     .privacy-item:last-child { border-right: none; }
-    .privacy-item-icon { font-size: 1.2rem; margin-bottom: 0.2rem; }
+    .privacy-item-icon {
+      font-size: 1.1rem; margin-bottom: 0.2rem;
+      color: #6B4A2A; opacity: 0.7;
+      font-family: sans-serif;
+    }
     .privacy-item-title {
       font-family: 'Playfair Display', serif;
       font-size: 0.88rem; font-weight: 600; color: #2C1810;
@@ -828,7 +832,7 @@ export default function LandingPage({ onGuestEnter }: {
           <span style={{
             fontFamily: "'DM Mono', monospace", fontSize: "0.68rem",
             letterSpacing: "0.2em", textTransform: "uppercase", color: "#5C7A3E",
-          }}>🔒 Privacy First</span>
+          }}>⬡ Privacy First</span>
           <div style={{
             fontFamily: "'Playfair Display', serif", fontSize: "1.1rem",
             color: "#2C1810", fontWeight: 600, marginTop: "0.3rem",
@@ -836,10 +840,10 @@ export default function LandingPage({ onGuestEnter }: {
         </div>
         <div className="privacy-grid">
           {[
-            { icon: "🔒", title: "No Video Stored", body: "Your webcam feed is processed in real time and never recorded, saved, or sent anywhere." },
-            { icon: "⚡", title: "Runs Locally", body: "Posture analysis happens entirely in your browser. No cloud processing, no uploads." },
-            { icon: "🧠", title: "Metrics Only", body: "We store posture scores and session stats — never images, never video frames." },
-            { icon: "👤", title: "Guest Mode", body: "No account needed. Guest sessions store nothing at all — vanishes on reload." },
+            { icon: "▣", title: "No Video Stored", body: "Your webcam feed is processed in real time and never recorded, saved, or sent anywhere." },
+            { icon: "◈", title: "Runs Locally", body: "Posture analysis happens entirely in your browser. No cloud processing, no uploads." },
+            { icon: "◎", title: "Metrics Only", body: "We store posture scores and session stats — never images, never video frames." },
+            { icon: "◯", title: "Guest Mode", body: "No account needed. Guest sessions store nothing at all — vanishes on reload." },
           ].map(item => (
             <div key={item.title} className="privacy-item">
               <div className="privacy-item-icon">{item.icon}</div>
@@ -906,12 +910,12 @@ export default function LandingPage({ onGuestEnter }: {
           </div>
           <div className="features-grid fade-up">
             {[
-              { icon: "🎯", bg: "rgba(92,122,62,0.1)", title: "Multiplicative PSI", body: "Quality × Stability. Chronic degradation can't hide behind short-term steadiness." },
-              { icon: "📹", bg: "rgba(176,125,58,0.1)", title: "Webcam Only", body: "No wearables, no sensors, no setup. Just your laptop camera and 5 seconds to calibrate. Video never leaves your device." },
+              { icon: "◉", bg: "rgba(92,122,62,0.1)", title: "Multiplicative PSI", body: "Quality × Stability. Chronic degradation can't hide behind short-term steadiness." },
+              { icon: "▶", bg: "rgba(176,125,58,0.1)", title: "Webcam Only", body: "No wearables, no sensors, no setup. Just your laptop camera and 5 seconds to calibrate. Video never leaves your device." },
               { icon: "📈", bg: "rgba(107,74,42,0.1)", title: "Session Analytics", body: "PSI slope, fatigue flags, SDI, zone breakdowns — every session saved and analysed." },
               { icon: "🔄", bg: "rgba(92,122,62,0.1)", title: "Guarded Recalibration", body: "Baseline only drifts during verified good posture. Slouch never becomes your new normal." },
-              { icon: "⚡", bg: "rgba(176,125,58,0.1)", title: "Real-Time Zones", body: "GREEN, YELLOW, RED with temporal hysteresis — no false alarms from a single bad frame." },
-              { icon: "🧠", bg: "rgba(107,74,42,0.1)", title: "Fatigue Detection", body: "Detects cumulative fatigue patterns across a session, not just instantaneous deviation." },
+              { icon: "◈", bg: "rgba(176,125,58,0.1)", title: "Real-Time Zones", body: "GREEN, YELLOW, RED with temporal hysteresis — no false alarms from a single bad frame." },
+              { icon: "◎", bg: "rgba(107,74,42,0.1)", title: "Fatigue Detection", body: "Detects cumulative fatigue patterns across a session, not just instantaneous deviation." },
             ].map((f, i) => (
               <div key={f.title} className="feature-item" style={{ transitionDelay: `${i * 0.05}s` }}>
                 <div className="feature-icon" style={{ background: f.bg }}>{f.icon}</div>
@@ -960,10 +964,10 @@ export default function LandingPage({ onGuestEnter }: {
           <div className="research-btns">
             <button className="btn-ieee-primary"
               onClick={() => setShowAcceptance(true)}>
-              🏛 View Acceptance Letter
+              ⬡ View Acceptance Letter
             </button>
             <button className="btn-ieee" style={{ opacity: 0.5, cursor: "not-allowed" }}>
-              📄 Paper — Publishing Soon
+              ◌ Paper — Publishing Soon
             </button>
           </div>
         </div>

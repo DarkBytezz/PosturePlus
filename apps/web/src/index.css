@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── LIGHT MODE: Warm ivory + forest green + rich amber ─── */
+/* ─── LIGHT MODE: Warm ivory + rich brown + amber — no green tint ─── */
 :root {
   --bg-primary: #F5F0E8;
   --bg-secondary: #EDE5D4;
@@ -12,53 +12,53 @@
   --bg-glass: rgba(245, 240, 232, 0.65);
   --bg-card-glass: rgba(255, 252, 245, 0.55);
 
-  --text-primary: #0F0C07;
-  --text-secondary: #241E14;
-  --text-muted: #4A3C28;
-  --text-faint: #7A6040;
+  --text-primary: #1A1008;
+  --text-secondary: #2E1F0F;
+  --text-muted: #5C3D1E;
+  --text-faint: #8A6040;
 
-  /* Forest green — primary brand */
-  --accent-primary: #1E6B42;
-  --accent-primary-bright: #28945C;
-  --accent-primary-dim: #16502F;
-  --accent-glow: rgba(30, 107, 66, 0.18);
-  --accent-glow-strong: rgba(30, 107, 66, 0.35);
+  /* Warm brown — primary brand in light mode */
+  --accent-primary: #7C4A1E;
+  --accent-primary-bright: #9A5E28;
+  --accent-primary-dim: #5C3414;
+  --accent-glow: rgba(124, 74, 30, 0.12);
+  --accent-glow-strong: rgba(124, 74, 30, 0.22);
 
-  /* Champagne gold — luxury complement */
+  /* Amber gold — luxury complement */
   --accent-gold: #B8860B;
   --accent-gold-bright: #D4A017;
   --accent-gold-light: rgba(212, 160, 23, 0.15);
-  --accent-gold-glow: rgba(184, 134, 11, 0.25);
+  --accent-gold-glow: rgba(184, 134, 11, 0.20);
 
-  /* Teal — data/chart accent */
-  --accent-teal: #0E7C7B;
-  --accent-teal-bright: #12A09F;
-  --accent-teal-glow: rgba(14, 124, 123, 0.2);
+  /* Dusty teal — muted data accent */
+  --accent-teal: #4A7C7A;
+  --accent-teal-bright: #5E9A98;
+  --accent-teal-glow: rgba(74, 124, 122, 0.15);
 
-  /* Danger */
+  /* Danger / warn / success */
   --accent-danger: #C0392B;
   --accent-warn: #D4820A;
-  --accent-success: #1E8B52;
+  --accent-success: #3A7A3A;
 
-  --text-on-accent: #FFFFFF;
+  --text-on-accent: #FFF8F0;
   --text-on-gold: #1A1200;
 
-  --border-subtle: rgba(0, 0, 0, 0.06);
-  --border-medium: rgba(0, 0, 0, 0.11);
-  --border-gold: rgba(184, 134, 11, 0.3);
-  --border-green: rgba(30, 107, 66, 0.25);
+  --border-subtle: rgba(92, 61, 30, 0.08);
+  --border-medium: rgba(92, 61, 30, 0.14);
+  --border-gold: rgba(184, 134, 11, 0.25);
+  --border-green: rgba(124, 74, 30, 0.2);
 
-  --shadow-card: 0 4px 28px rgba(0,0,0,0.08), 0 1px 6px rgba(0,0,0,0.04);
-  --shadow-elevated: 0 12px 48px rgba(0,0,0,0.14), 0 3px 12px rgba(0,0,0,0.07);
-  --shadow-glow-green: 0 0 32px rgba(30, 107, 66, 0.2), 0 4px 20px rgba(0,0,0,0.1);
-  --shadow-glow-gold: 0 0 32px rgba(184, 134, 11, 0.2), 0 4px 20px rgba(0,0,0,0.1);
+  --shadow-card: 0 4px 28px rgba(60,30,10,0.08), 0 1px 6px rgba(60,30,10,0.04);
+  --shadow-elevated: 0 12px 48px rgba(60,30,10,0.13), 0 3px 12px rgba(60,30,10,0.06);
+  --shadow-glow-green: 0 0 32px rgba(124, 74, 30, 0.15), 0 4px 20px rgba(60,30,10,0.08);
+  --shadow-glow-gold: 0 0 32px rgba(184, 134, 11, 0.18), 0 4px 20px rgba(60,30,10,0.08);
 
-  --gradient-hero: linear-gradient(135deg, #F5F0E8 0%, #ECE2CD 50%, #E2D9C4 100%);
-  --gradient-green: linear-gradient(135deg, #1E6B42 0%, #28945C 100%);
+  --gradient-hero: linear-gradient(135deg, #F5F0E8 0%, #ECE2CD 50%, #E2D4B8 100%);
+  --gradient-green: linear-gradient(135deg, #7C4A1E 0%, #9A5E28 100%);
   --gradient-gold: linear-gradient(135deg, #B8860B 0%, #D4A017 100%);
-  --gradient-card: linear-gradient(145deg, rgba(255,252,245,0.6) 0%, rgba(232,220,200,0.4) 100%);
+  --gradient-card: linear-gradient(145deg, rgba(255,252,245,0.6) 0%, rgba(232,218,195,0.4) 100%);
 
-  --grain-opacity: 0.035;
+  --grain-opacity: 0.03;
 }
 
 /* ─── DARK MODE: Near-black + emerald + champagne gold + teal ─── */

@@ -46,7 +46,12 @@ export function usePostureStream() {
 
   // ── Load persisted data from Supabase on mount ─────────────────────────────
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      // User logged out or entered guest mode — wipe all persisted data
+      setSessionHistory([]);
+      setWeeklyData([0, 0, 0, 0, 0, 0, 0]);
+      return;
+    }
 
     // Load last 7 days for dashboard chart
     fetchWeeklySummary(user.id, user.user_metadata?.timezone).then(rows => {
@@ -74,10 +79,14 @@ export function usePostureStream() {
 
       const records: SessionRecord[] = rows.map(r => ({
         id:             r.id,
-        date:           new Date(r.start_time).toLocaleDateString("en-US", {
-                          weekday: "short", month: "short", day: "numeric",
-                          hour: "2-digit", minute: "2-digit",
-                        }),
+        date:           (() => {
+                          const d = new Date(r.start_time);
+                          return d.toLocaleDateString("en-IN", {
+                            weekday: "short", day: "numeric", month: "short", year: "numeric",
+                          }) + ", " + d.toLocaleTimeString("en-IN", {
+                            hour: "2-digit", minute: "2-digit", hour12: true,
+                          });
+                        })(),
         startTimestamp: new Date(r.start_time).getTime(),
         durationSec:    r.duration_seconds ?? 0,
         meanPsi:        Math.round(r.mean_psi ?? 0),
@@ -283,10 +292,14 @@ export function usePostureStream() {
 
     const record: SessionRecord = {
       id:             `session-${sessionStartRef.current}`,
-      date:           new Date(sessionStartRef.current).toLocaleDateString("en-US", {
-                        weekday: "short", month: "short", day: "numeric",
-                        hour: "2-digit", minute: "2-digit",
-                      }),
+      date:           (() => {
+                        const d = new Date(sessionStartRef.current);
+                        return d.toLocaleDateString("en-IN", {
+                          weekday: "short", day: "numeric", month: "short", year: "numeric",
+                        }) + ", " + d.toLocaleTimeString("en-IN", {
+                          hour: "2-digit", minute: "2-digit", hour12: true,
+                        });
+                      })(),
       startTimestamp: sessionStartRef.current,
       durationSec:    opts.durationSec,
       meanPsi,
