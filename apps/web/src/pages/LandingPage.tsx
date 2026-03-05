@@ -216,7 +216,7 @@ export default function LandingPage({ onGuestEnter }: {
 
     .land-h1 {
       font-family: 'Playfair Display', serif;
-      font-size: clamp(3rem, 5.5vw, 5.5rem);
+      font-size: clamp(2.2rem, 4vw, 4rem);
       font-weight: 900;
       line-height: 1.0;
       letter-spacing: -0.02em;
@@ -677,7 +677,7 @@ export default function LandingPage({ onGuestEnter }: {
         <div>
           <div className="land-eyebrow">
             <span className="land-eyebrow-dot" />
-            IEEE CSPA 2026 · Accepted Research
+            IEEE CSPA 2026 · Conference Accepted
           </div>
 
           <h1 className="land-h1">
@@ -687,9 +687,9 @@ export default function LandingPage({ onGuestEnter }: {
           </h1>
 
           <p className="land-sub">
-            Posture+ uses a peer-reviewed Multiplicative Temporal Stability framework
-            to detect chronic slouch — not just momentary dips. Built on published
-            IEEE research. Real-time. No wearables.
+            Posture+ uses a conference-accepted Multiplicative Temporal Stability framework
+            to detect chronic slouch — not just momentary dips. Accepted at IEEE CSPA 2026.
+            Real-time. No wearables.
           </p>
 
           <div className="land-hero-actions">
@@ -737,8 +737,8 @@ export default function LandingPage({ onGuestEnter }: {
           <div className="ieee-badge">
             <div className="ieee-icon">IEEE</div>
             <div>
-              <div className="ieee-text-title">Accepted · CSPA 2026</div>
-              <div className="ieee-text-sub">22nd IEEE International Colloquium · Kuala Lumpur</div>
+              <div className="ieee-text-title">Accepted · IEEE CSPA 2026</div>
+              <div className="ieee-text-sub">Presenting at 22nd IEEE Colloquium · Kuala Lumpur, May 2026</div>
             </div>
           </div>
         </div>
@@ -770,7 +770,7 @@ export default function LandingPage({ onGuestEnter }: {
             },
             {
               n: "02", title: "Monitor in Real Time",
-              body: "Your webcam tracks head pitch, lateral tilt, and shoulder imbalance at every frame. The PSI engine processes temporal stability — not just snapshots — using a published mathematical framework.",
+              body: "Your webcam tracks head pitch, lateral tilt, and shoulder imbalance at every frame. The PSI engine processes temporal stability — not just snapshots — using our conference-accepted mathematical framework.",
             },
             {
               n: "03", title: "Get Smarter Over Time",
@@ -825,11 +825,11 @@ export default function LandingPage({ onGuestEnter }: {
       <section className="land-section" id="research">
         <div className="fade-up">
           <div className="section-label">Research Foundation</div>
-          <h2 className="section-title">Not a wellness app.<br /><em>A published framework.</em></h2>
+          <h2 className="section-title">Not a wellness app.<br /><em>A conference-accepted framework.</em></h2>
         </div>
         <div className="research-card fade-up">
           <div style={{ position: "relative", zIndex: 1 }}>
-            <div className="research-pre">IEEE CSPA 2026 · Paper #0431</div>
+            <div className="research-pre">IEEE CSPA 2026 · Paper #0431 · Accepted for Presentation</div>
             <div className="research-title">
               PosturePlus: A Multiplicative Temporal<br />Stability Framework for Real-Time<br />Posture Monitoring
             </div>
