@@ -520,6 +520,33 @@ export default function LandingPage({ onGuestEnter }: {
     }
     .btn-ieee-primary:hover { background: #6B8E4E; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(92,122,62,0.3); }
 
+    /* PRIVACY STRIP */
+    .privacy-strip {
+      padding: 0 6rem;
+      margin-bottom: 0;
+    }
+    .privacy-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      background: rgba(255,252,245,0.7);
+      border: 1px solid rgba(92,60,30,0.1);
+      border-radius: 20px; overflow: hidden;
+    }
+    .privacy-item {
+      padding: 1.5rem 1.6rem;
+      border-right: 1px solid rgba(92,60,30,0.08);
+      display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .privacy-item:last-child { border-right: none; }
+    .privacy-item-icon { font-size: 1.2rem; margin-bottom: 0.2rem; }
+    .privacy-item-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.88rem; font-weight: 600; color: #2C1810;
+    }
+    .privacy-item-body {
+      font-size: 0.75rem; color: #5C3D1E; line-height: 1.5;
+    }
+
     /* STATS BAR */
     .stats-row {
       display: grid; grid-template-columns: repeat(4, 1fr);
@@ -687,6 +714,7 @@ export default function LandingPage({ onGuestEnter }: {
       .steps-grid { grid-template-columns: 1fr; }
       .features-grid { grid-template-columns: 1fr; }
       .research-card { grid-template-columns: 1fr; }
+      .privacy-grid { grid-template-columns: 1fr 1fr; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .land-nav { padding: 1rem 2rem; }
       .land-nav.scrolled { padding: 0.8rem 2rem; }
@@ -735,8 +763,9 @@ export default function LandingPage({ onGuestEnter }: {
 
           <p className="land-sub">
             Posture+ uses a conference-accepted Multiplicative Temporal Stability framework
-            to detect chronic slouch — not just momentary dips. Accepted at IEEE CSPA 2026.
-            Real-time. No wearables.
+            to detect <em>persistent slouch</em> — not just momentary dips. Most tools alert you
+            once and forget. Posture+ tracks how long instability lasts, because that's what
+            actually damages your spine. Accepted at IEEE CSPA 2026. Real-time. No wearables.
           </p>
 
           <div className="land-hero-actions">
@@ -792,6 +821,34 @@ export default function LandingPage({ onGuestEnter }: {
       </section>
 
       <div className="land-divider" />
+
+      {/* PRIVACY TRUST STRIP */}
+      <div className="privacy-strip fade-up" style={{ padding: "3rem 6rem 0" }}>
+        <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
+          <span style={{
+            fontFamily: "'DM Mono', monospace", fontSize: "0.68rem",
+            letterSpacing: "0.2em", textTransform: "uppercase", color: "#5C7A3E",
+          }}>🔒 Privacy First</span>
+          <div style={{
+            fontFamily: "'Playfair Display', serif", fontSize: "1.1rem",
+            color: "#2C1810", fontWeight: 600, marginTop: "0.3rem",
+          }}>Your camera never leaves your device.</div>
+        </div>
+        <div className="privacy-grid">
+          {[
+            { icon: "🔒", title: "No Video Stored", body: "Your webcam feed is processed in real time and never recorded, saved, or sent anywhere." },
+            { icon: "⚡", title: "Runs Locally", body: "Posture analysis happens entirely in your browser. No cloud processing, no uploads." },
+            { icon: "🧠", title: "Metrics Only", body: "We store posture scores and session stats — never images, never video frames." },
+            { icon: "👤", title: "Guest Mode", body: "No account needed. Guest sessions store nothing at all — vanishes on reload." },
+          ].map(item => (
+            <div key={item.title} className="privacy-item">
+              <div className="privacy-item-icon">{item.icon}</div>
+              <div className="privacy-item-title">{item.title}</div>
+              <div className="privacy-item-body">{item.body}</div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* STATS */}
       <div style={{ padding: "0 6rem" }}>
@@ -850,7 +907,7 @@ export default function LandingPage({ onGuestEnter }: {
           <div className="features-grid fade-up">
             {[
               { icon: "🎯", bg: "rgba(92,122,62,0.1)", title: "Multiplicative PSI", body: "Quality × Stability. Chronic degradation can't hide behind short-term steadiness." },
-              { icon: "📹", bg: "rgba(176,125,58,0.1)", title: "Webcam Only", body: "No wearables, no sensors, no setup. Just your laptop camera and 5 seconds to calibrate." },
+              { icon: "📹", bg: "rgba(176,125,58,0.1)", title: "Webcam Only", body: "No wearables, no sensors, no setup. Just your laptop camera and 5 seconds to calibrate. Video never leaves your device." },
               { icon: "📈", bg: "rgba(107,74,42,0.1)", title: "Session Analytics", body: "PSI slope, fatigue flags, SDI, zone breakdowns — every session saved and analysed." },
               { icon: "🔄", bg: "rgba(92,122,62,0.1)", title: "Guarded Recalibration", body: "Baseline only drifts during verified good posture. Slouch never becomes your new normal." },
               { icon: "⚡", bg: "rgba(176,125,58,0.1)", title: "Real-Time Zones", body: "GREEN, YELLOW, RED with temporal hysteresis — no false alarms from a single bad frame." },
@@ -995,8 +1052,11 @@ export default function LandingPage({ onGuestEnter }: {
       {/* FOOTER */}
       <footer className="land-footer">
         <div className="footer-logo">Posture<span>+</span></div>
-        <div className="footer-copy">
-          © 2026 · IEEE CSPA 2026 Accepted · Built by Manan Verma
+        <div className="footer-copy" style={{ textAlign: "right" }}>
+          <div>© 2026 · IEEE CSPA 2026 Accepted · Built by Manan Verma</div>
+          <div style={{ marginTop: "0.3rem", fontSize: "0.72rem", color: "#A08060" }}>
+            Camera feed is processed locally in your browser. Posture+ never records or uploads video.
+          </div>
         </div>
       </footer>
 
