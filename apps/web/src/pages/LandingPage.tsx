@@ -1012,7 +1012,7 @@ export default function LandingPage({ onGuestEnter }: {
               <button className="pdf-modal-close" onClick={() => setShowAcceptance(false)}>✕</button>
             </div>
             <iframe
-              src="/Acceptance_Letter.pdf#toolbar=0&navpanes=0&scrollbar=0"
+              src={`https://docs.google.com/viewer?url=${encodeURIComponent("https://posture-plus.vercel.app/Acceptance_Letter.pdf")}&embedded=true`}
               style={{ flex: 1, width: "100%", border: "none", background: "#fff" }}
               title="IEEE Acceptance Letter"
             />
