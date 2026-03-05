@@ -918,7 +918,7 @@ export default function LandingPage({ onGuestEnter }: {
           <div className="fade-up">
             <div className="section-label" style={{ textAlign: "center" }}>Get Started</div>
             <h2 className="section-title" style={{ textAlign: "center" }}>
-              Be good to your Neck and Spine<br /><em>thank you later.</em>
+              Be good to your<br /><em>Neck and Spine</em>
             </h2>
             <p style={{ color: "#5C3D1E", fontSize: "0.95rem", lineHeight: 1.7, marginTop: "0.8rem" }}>
               Free to use. No credit card. No hardware.
