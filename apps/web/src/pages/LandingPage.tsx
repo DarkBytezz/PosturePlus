@@ -101,6 +101,7 @@ function StatCounter({ end, suffix, label }: { end: number; suffix: string; labe
 export default function LandingPage({ onGuestEnter }: {
   onGuestEnter: () => void;
 }) {
+  const [showAcceptance, setShowAcceptance] = useState(false);
   const [authMode, setAuthMode]   = useState<AuthMode>("idle");
   const [email, setEmail]         = useState("");
   const [sending, setSending]     = useState(false);
@@ -619,6 +620,52 @@ export default function LandingPage({ onGuestEnter }: {
     .footer-logo span { color: #5C7A3E; }
     .footer-copy { font-size: 0.8rem; color: #7A5C3A; }
 
+    /* MODAL */
+    .pdf-modal-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(20,12,8,0.75);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+    .pdf-modal {
+      background: #1a1208;
+      border: 1px solid rgba(176,125,58,0.3);
+      border-radius: 20px;
+      width: 100%; max-width: 860px;
+      height: 90vh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(16px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+    .pdf-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(176,125,58,0.2);
+      flex-shrink: 0;
+    }
+    .pdf-modal-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem; color: #F5EFE4; font-weight: 600;
+    }
+    .pdf-modal-sub {
+      font-size: 0.72rem; color: #9BB5D4; margin-top: 1px;
+      font-family: 'DM Mono', monospace;
+    }
+    .pdf-modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #F5EFE4; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .pdf-modal-close:hover { background: rgba(255,255,255,0.16); }
+
     /* GRAIN OVERLAY */
     .grain {
       position: fixed; inset: 0; pointer-events: none; z-index: 1000;
@@ -855,12 +902,11 @@ export default function LandingPage({ onGuestEnter }: {
           </div>
           <div className="research-btns">
             <button className="btn-ieee-primary"
-              onClick={() => window.open("/Posture_Plus_Research.pdf", "_blank")}>
-              📄 Read Full Paper
+              onClick={() => setShowAcceptance(true)}>
+              🏛 View Acceptance Letter
             </button>
-            <button className="btn-ieee"
-              onClick={() => window.open("/Acceptance_Letter.pdf", "_blank")}>
-              🏛 Acceptance Letter
+            <button className="btn-ieee" style={{ opacity: 0.5, cursor: "not-allowed" }}>
+              📄 Paper — Publishing Soon
             </button>
           </div>
         </div>
@@ -872,7 +918,7 @@ export default function LandingPage({ onGuestEnter }: {
           <div className="fade-up">
             <div className="section-label" style={{ textAlign: "center" }}>Get Started</div>
             <h2 className="section-title" style={{ textAlign: "center" }}>
-              Your neck and spine will<br /><em>thank you later.</em>
+              Your spine will<br /><em>thank you later.</em>
             </h2>
             <p style={{ color: "#5C3D1E", fontSize: "0.95rem", lineHeight: 1.7, marginTop: "0.8rem" }}>
               Free to use. No credit card. No hardware.
@@ -953,6 +999,26 @@ export default function LandingPage({ onGuestEnter }: {
           © 2026 · IEEE CSPA 2026 Accepted · Built by Manan Verma
         </div>
       </footer>
+
+      {/* ACCEPTANCE LETTER MODAL */}
+      {showAcceptance && (
+        <div className="pdf-modal-overlay" onClick={() => setShowAcceptance(false)}>
+          <div className="pdf-modal" onClick={e => e.stopPropagation()}>
+            <div className="pdf-modal-header">
+              <div>
+                <div className="pdf-modal-title">Letter of Acceptance</div>
+                <div className="pdf-modal-sub">IEEE CSPA 2026 · Paper #0431 · Westin Kuala Lumpur, May 1–2 2026</div>
+              </div>
+              <button className="pdf-modal-close" onClick={() => setShowAcceptance(false)}>✕</button>
+            </div>
+            <iframe
+              src="/Acceptance_Letter.pdf#toolbar=0&navpanes=0&scrollbar=0"
+              style={{ flex: 1, width: "100%", border: "none", background: "#fff" }}
+              title="IEEE Acceptance Letter"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
