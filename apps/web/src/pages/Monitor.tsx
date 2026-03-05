@@ -1,8 +1,11 @@
 import CameraView from "../components/monitor/CameraView";
 import BiometricsPanel from "../components/monitor/BiometricsPanel";
 import PSITimelineGraph from "../components/monitor/PSITimelineGraph";
+import AlertSettingsPanel from "../components/monitor/AlertSettingsPanel";
 import { PostureEngine } from "../pose/engine/PostureEngine";
 import { PostureAlerts } from "../pose/alerts/PostureAlerts";
+import type { AlertSettings } from "../pose/alerts/PostureAlerts";
+import { DEFAULT_ALERT_SETTINGS } from "../pose/alerts/PostureAlerts";
 import { PostureInsights } from "../pose/insights/PostureInsights";
 import type { InsightMessage } from "../pose/insights/PostureInsights";
 import { useEffect, useRef, useCallback, useState } from "react";
@@ -38,6 +41,18 @@ export default function Monitor() {
   // ── Heatmap: rolling severity per axis (0–1) ───────────────────────────────
   const [heatmap, setHeatmap] = useState({ forward: 0, lateral: 0, shoulder: 0 });
   const heatmapRef = useRef({ forward: 0, lateral: 0, shoulder: 0 });
+
+  // ── Alert settings ─────────────────────────────────────────────────────────
+  const [alertSettings, setAlertSettings] = useState<AlertSettings>(DEFAULT_ALERT_SETTINGS);
+  const [showAlertSettings, setShowAlertSettings] = useState(false);
+
+  const handleAlertSettingsChange = (partial: Partial<AlertSettings>) => {
+    setAlertSettings(prev => {
+      const next = { ...prev, ...partial };
+      alertsRef.current.updateSettings(next);
+      return next;
+    });
+  };
 
   // ── Session stats ref for cleanup ─────────────────────────────────────────
   const sessionStatsRef = useRef({
@@ -111,7 +126,7 @@ export default function Monitor() {
     // ── Alerts ──────────────────────────────────────────────────────────────
     const fired = alertsRef.current.update(data.zone);
     const streak = alertsRef.current.getRedStreakMs();
-    setAlertActive(fired);
+    setAlertActive(fired && alertSettings.enableVisualFlash);
     setRedStreakSec(Math.floor(streak / 1000));
     if (fired) setTimeout(() => setAlertActive(false), 2000);
 
@@ -193,7 +208,7 @@ export default function Monitor() {
 
 
   return (
-    <div className="min-h-[calc(100vh-4.5rem)] p-6 flex gap-6 relative overflow-y-auto overflow-x-hidden">
+    <div className="h-[calc(100vh-4.5rem)] p-6 flex gap-6 relative overflow-hidden">
 
       {/* ── Recalib toast ───────────────────────────────────────────────────── */}
       {recentRecalib && (
@@ -288,6 +303,42 @@ export default function Monitor() {
                 </>
               )}
             </div>
+          )}
+        </div>
+
+        {/* ── Alert settings button ──────────────────────────────────────── */}
+        <div style={{ position: "relative", alignSelf: "flex-end" }}>
+          <button
+            onClick={() => setShowAlertSettings(p => !p)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200"
+            style={{
+              background: showAlertSettings ? "var(--accent-glow)" : "var(--bg-elevated)",
+              color: showAlertSettings ? "var(--accent-primary)" : "var(--text-muted)",
+              border: `1px solid ${showAlertSettings ? "var(--accent-primary)" : "var(--border-subtle)"}`,
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/>
+              <line x1="10" y1="1" x2="10" y2="4"/>
+              <line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+            Alert Settings
+            {!alertSettings.enableSound && !alertSettings.enableNotification && !alertSettings.enableVisualFlash && (
+              <span style={{
+                background: "var(--text-muted)", color: "var(--bg-primary)",
+                borderRadius: "100px", padding: "1px 6px", fontSize: "0.6rem", fontWeight: 700,
+              }}>SILENT</span>
+            )}
+          </button>
+
+          {showAlertSettings && (
+            <AlertSettingsPanel
+              settings={alertSettings}
+              onChange={handleAlertSettingsChange}
+              onClose={() => setShowAlertSettings(false)}
+            />
           )}
         </div>
 
