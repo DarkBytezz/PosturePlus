@@ -66,6 +66,7 @@
   --chart-poor:   #B02A18;
   --chart-text:   rgba(90, 58, 20, 0.55);
   --chart-grid:   rgba(90, 58, 20, 0.12);
+  --chart-line:   #8B5E3C;
 }
 
 /* ─── DARK MODE: Near-black + emerald + champagne gold + teal ─── */
@@ -132,6 +133,7 @@
   --chart-poor:   #ff5f52;
   --chart-text:   rgba(255, 255, 255, 0.38);
   --chart-grid:   rgba(255, 255, 255, 0.09);
+  --chart-line:   #4A9268;
 }
 
 /* ─── BASE ─── */

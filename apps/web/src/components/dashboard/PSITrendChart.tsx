@@ -98,11 +98,12 @@ export default function PSITrendChart({
   const yTicks: number[] = [];
   for (let t = tickStart; t <= vMax; t += tickStep) yTicks.push(t);
 
-  // Colour by value
-  const valueColor = (v: number) =>
-    v >= 80 ? "#4ade80" : v >= 60 ? "#fbbf24" : "#ff5f52";
-
-  const lineColor = valueColor(activeV);
+  // Single theme-aware line color — read from CSS vars
+  const lineColor = (() => {
+    const s = getComputedStyle(document.documentElement);
+    return s.getPropertyValue("--chart-line").trim() || "#7B8CDE";
+  })();
+  const valueColor = (_v: number) => lineColor;
 
   // Improvement: compare first non-zero day to last non-zero day
   // Avoids ÷0 explosion when early days have no data yet
@@ -140,9 +141,9 @@ export default function PSITrendChart({
         <div
           className="px-2.5 py-1 rounded-lg text-[10px] font-bold"
           style={{
-            background: Number(improvement) >= 0 ? "rgba(74,222,128,0.1)" : "rgba(255,95,82,0.1)",
-            color:      Number(improvement) >= 0 ? "#4ade80" : "#ff5f52",
-            border:     `1px solid ${Number(improvement) >= 0 ? "rgba(74,222,128,0.2)" : "rgba(255,95,82,0.2)"}`,
+            background: "var(--accent-glow)",
+            color:      Number(improvement) >= 0 ? "var(--chart-good)" : "var(--accent-danger)",
+            border:     "1px solid var(--border-medium)",
           }}
         >
           {firstVal > 0
@@ -157,7 +158,7 @@ export default function PSITrendChart({
         <svg
           viewBox={`0 0 ${W} ${H}`}
           width="100%" height="100%"
-          style={{ overflow: "visible" }}
+          style={{ overflow: "hidden" }}
           onMouseLeave={handleLeave}
         >
           <defs>
@@ -182,13 +183,13 @@ export default function PSITrendChart({
               <g key={t}>
                 <line
                   x1={PL} y1={y} x2={W - PR} y2={y}
-                  stroke="rgba(255,255,255,0.05)" strokeWidth="1"
+                  stroke="var(--chart-grid)" strokeWidth="1"
                   strokeDasharray="4 4"
                 />
                 <text
                   x={PL - 6} y={y + 3.5}
                   textAnchor="end" fontSize="8.5"
-                  fill="rgba(255,255,255,0.22)" fontFamily="monospace"
+                  fill="var(--chart-text)" fontFamily="monospace"
                 >{t}</text>
               </g>
             );
@@ -234,7 +235,7 @@ export default function PSITrendChart({
                   width={chartW / safe.length}
                   height={chartH + PB}
                   fill="transparent"
-                  style={{ cursor: "crosshair" }}
+                  style={{ cursor: "default" }}
                   onMouseEnter={() => handleEnter(i)}
                 />
 
@@ -262,7 +263,7 @@ export default function PSITrendChart({
                 <text
                   x={p.x} y={H - 6}
                   textAnchor="middle" fontSize="9"
-                  fill={isActive ? col : "rgba(255,255,255,0.25)"}
+                  fill={isActive ? col : "var(--chart-text)"}
                   fontFamily="monospace"
                   fontWeight={isActive ? "bold" : "normal"}
                   style={{ transition: "fill 0.15s" }}
@@ -286,7 +287,7 @@ export default function PSITrendChart({
               <rect
                 x={pillX} y={pillY}
                 width={pillW} height={pillH} rx="7"
-                fill="rgba(10,15,12,0.85)"
+                fill="var(--bg-elevated)"
                 stroke={lineColor} strokeWidth="1"
                 style={{ filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.5))" }}
               />
@@ -294,7 +295,7 @@ export default function PSITrendChart({
               <text
                 x={pillX + pillW / 2} y={pillY + 11}
                 textAnchor="middle" fontSize="7.5"
-                fill="rgba(255,255,255,0.45)" fontFamily="monospace"
+                fill="var(--chart-text)" fontFamily="monospace"
               >{hovered !== null ? activeL : "Today"}</text>
               {/* PSI value */}
               <text
