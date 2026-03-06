@@ -9,19 +9,10 @@ type PSITrendChartProps = {
 const DEFAULT_DATA   = [65, 72, 70, 78, 75, 85, 82];
 const DEFAULT_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-// Catmull-Rom spline — smooth through all points
-function catmullRom(pts: { x: number; y: number }[]): string {
+// Straight polyline through all points
+function straightLine(pts: { x: number; y: number }[]): string {
   if (pts.length < 2) return "";
-  const T = 0.4;
-  let d = `M ${pts[0].x},${pts[0].y}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[Math.max(i - 1, 0)];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[Math.min(i + 2, pts.length - 1)];
-    d += ` C ${p1.x + (p2.x - p0.x) * T},${p1.y + (p2.y - p0.y) * T} ${p2.x - (p3.x - p1.x) * T},${p2.y - (p3.y - p1.y) * T} ${p2.x},${p2.y}`;
-  }
-  return d;
+  return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
 }
 
 export default function PSITrendChart({
@@ -36,7 +27,7 @@ export default function PSITrendChart({
   const H  = 180;
   const PL = 38;   // left padding — room for Y labels
   const PR = 16;
-  const PT = 16;
+  const PT = 24;
   const PB = 28;   // bottom — room for day labels
 
   const chartW = W - PL - PR;
@@ -61,7 +52,7 @@ export default function PSITrendChart({
     [safe]
   );
 
-  const linePath = useMemo(() => catmullRom(pts), [pts]);
+  const linePath = useMemo(() => straightLine(pts), [pts]);
   const areaPath = linePath
     ? `${linePath} L ${pts[pts.length-1].x},${PT + chartH} L ${pts[0].x},${PT + chartH} Z`
     : "";
@@ -98,11 +89,8 @@ export default function PSITrendChart({
   const yTicks: number[] = [];
   for (let t = tickStart; t <= vMax; t += tickStep) yTicks.push(t);
 
-  // Single theme-aware line color — read from CSS vars
-  const lineColor = (() => {
-    const s = getComputedStyle(document.documentElement);
-    return s.getPropertyValue("--chart-line").trim() || "#7B8CDE";
-  })();
+  // Use CSS var directly — SVG resolves it live on theme change
+  const lineColor = "var(--chart-line)";
   const valueColor = (_v: number) => lineColor;
 
   // Improvement: compare first non-zero day to last non-zero day
@@ -216,8 +204,8 @@ export default function PSITrendChart({
             clipPath="url(#trendClip)"
             filter="url(#trendGlow)"
             style={{
-              strokeDasharray:  1200,
-              strokeDashoffset: lineDrawn ? 0 : 1200,
+              strokeDasharray:  2000,
+              strokeDashoffset: lineDrawn ? 0 : 2000,
               transition:       "stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)",
             }}
           />
