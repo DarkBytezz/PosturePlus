@@ -1,11 +1,8 @@
 import CameraView from "../components/monitor/CameraView";
 import BiometricsPanel from "../components/monitor/BiometricsPanel";
 import PSITimelineGraph from "../components/monitor/PSITimelineGraph";
-import AlertSettingsPanel from "../components/monitor/AlertSettingsPanel";
 import { PostureEngine } from "../pose/engine/PostureEngine";
 import { PostureAlerts } from "../pose/alerts/PostureAlerts";
-import type { AlertSettings } from "../pose/alerts/PostureAlerts";
-import { DEFAULT_ALERT_SETTINGS } from "../pose/alerts/PostureAlerts";
 import { PostureInsights } from "../pose/insights/PostureInsights";
 import type { InsightMessage } from "../pose/insights/PostureInsights";
 import { useEffect, useRef, useCallback, useState } from "react";
@@ -41,17 +38,6 @@ export default function Monitor() {
   // ── Heatmap: rolling severity per axis (0–1) ───────────────────────────────
   const [heatmap, setHeatmap] = useState({ forward: 0, lateral: 0, shoulder: 0 });
   const heatmapRef = useRef({ forward: 0, lateral: 0, shoulder: 0 });
-
-  // ── Alert settings ─────────────────────────────────────────────────────────
-  const [alertSettings, setAlertSettings] = useState<AlertSettings>(DEFAULT_ALERT_SETTINGS);
-  const [showAlertSettings, setShowAlertSettings] = useState(false);
-  const handleAlertSettingsChange = (partial: Partial<AlertSettings>) => {
-    setAlertSettings(prev => {
-      const next = { ...prev, ...partial };
-      alertsRef.current.updateSettings(next);
-      return next;
-    });
-  };
 
   // ── Session stats ref for cleanup ─────────────────────────────────────────
   const sessionStatsRef = useRef({
@@ -125,7 +111,7 @@ export default function Monitor() {
     // ── Alerts ──────────────────────────────────────────────────────────────
     const fired = alertsRef.current.update(data.zone);
     const streak = alertsRef.current.getRedStreakMs();
-    setAlertActive(fired && alertSettings.enableVisualFlash);
+    setAlertActive(fired);
     setRedStreakSec(Math.floor(streak / 1000));
     if (fired) setTimeout(() => setAlertActive(false), 2000);
 
@@ -303,59 +289,42 @@ export default function Monitor() {
               )}
             </div>
           )}
-        </div>
 
-        {/* ── Calibrate + Alert settings row ───────────────────────────────── */}
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "stretch", position: "relative" }}>
-
-          <button
-            onClick={handleCalibration}
-            disabled={calibrating}
-            className="flex-1 px-8 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-200"
-            style={{
-              background:  calibrating ? "rgba(74,222,128,0.1)" : "var(--accent-primary)",
-              color:       calibrating ? "#4ade80" : "var(--text-on-accent)",
-              border:      calibrating ? "1px solid rgba(74,222,128,0.3)" : "none",
-              opacity:     calibrating ? 0.8 : 1,
-              boxShadow:   calibrating ? "none" : "0 0 20px rgba(74,222,128,0.3)",
-            }}
-          >
-            {calibrating
-              ? countdown && countdown > 0 ? `Starting in ${countdown}…` : "Calibrating…"
-              : isCalibrated ? "↺ Recalibrate" : "Start Calibration"}
-          </button>
-
-          <div style={{ position: "relative" }}>
-            <button
-              onClick={() => setShowAlertSettings(p => !p)}
-              className="h-full px-3 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
-              style={{
-                background: showAlertSettings ? "var(--accent-glow)" : "var(--bg-elevated)",
-                color: showAlertSettings ? "var(--accent-primary)" : "var(--text-muted)",
-                border: `1px solid ${showAlertSettings ? "var(--accent-primary)" : "var(--border-subtle)"}`,
-                whiteSpace: "nowrap",
-              }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-              </svg>
-              Alerts
-              {!alertSettings.enableSound && !alertSettings.enableNotification && !alertSettings.enableVisualFlash && (
-                <span style={{
-                  background: "var(--text-muted)", color: "var(--bg-primary)",
-                  borderRadius: "100px", padding: "1px 5px", fontSize: "0.58rem", fontWeight: 700,
-                }}>OFF</span>
-              )}
-            </button>
-            {showAlertSettings && (
-              <AlertSettingsPanel
-                settings={alertSettings}
-                onChange={handleAlertSettingsChange}
-                onClose={() => setShowAlertSettings(false)}
-              />
-            )}
-          </div>
-
+          {/* ── Calibrate button — bottom overlay inside camera ──────────── */}
+          {!calibrating && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
+              <button
+                onClick={handleCalibration}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-200"
+                style={{
+                  background: isCalibrated ? "rgba(10,15,12,0.7)" : "var(--accent-primary)",
+                  color: isCalibrated ? "#e5e5e5" : "var(--text-on-accent)",
+                  border: isCalibrated ? "1px solid rgba(255,255,255,0.15)" : "none",
+                  backdropFilter: "blur(12px)",
+                  boxShadow: isCalibrated ? "0 2px 12px rgba(0,0,0,0.3)" : "0 4px 20px var(--accent-glow-strong)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {isCalibrated ? (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                      <path d="M3 3v5h5"/>
+                    </svg>
+                    Recalibrate
+                  </>
+                ) : (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="3"/>
+                      <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+                    </svg>
+                    Start Calibration
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
 
         <style>{`
