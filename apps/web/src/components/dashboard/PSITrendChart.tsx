@@ -7,7 +7,17 @@ type PSITrendChartProps = {
 };
 
 const DEFAULT_DATA   = [65, 72, 70, 78, 75, 85, 82];
-const DEFAULT_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// Generate last 7 days ending today
+function getLast7DayLabels(): string[] {
+  const today = new Date();
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (6 - i));
+    return DAY_NAMES[d.getDay()];
+  });
+}
 
 // Straight polyline through all points
 function straightLine(pts: { x: number; y: number }[]): string {
@@ -17,9 +27,10 @@ function straightLine(pts: { x: number; y: number }[]): string {
 
 export default function PSITrendChart({
   data   = DEFAULT_DATA,
-  labels = DEFAULT_LABELS,
+  labels = undefined,
   onHoverChange,
 }: PSITrendChartProps) {
+  const resolvedLabels = labels ?? getLast7DayLabels();
   const [lineDrawn,    setLineDrawn]    = useState(false);
   const [hovered,      setHovered]      = useState<number | null>(null);
 
@@ -65,7 +76,7 @@ export default function PSITrendChart({
   // Notify parent of hover state
   const handleEnter = (i: number) => {
     setHovered(i);
-    onHoverChange?.(safe[i], labels[i] ?? null);
+    onHoverChange?.(safe[i], resolvedLabels[i] ?? null);
   };
   const handleLeave = () => {
     setHovered(null);
@@ -75,7 +86,7 @@ export default function PSITrendChart({
   const activeIdx = hovered ?? safe.length - 1;
   const activeP   = pts[activeIdx];
   const activeV   = safe[activeIdx];
-  const activeL   = labels[activeIdx] ?? "";
+  const activeL   = resolvedLabels[activeIdx] ?? "";
 
   // Pill position — clamp inside chart
   const pillW  = 48;
@@ -256,7 +267,7 @@ export default function PSITrendChart({
                   fontWeight={isActive ? "bold" : "normal"}
                   style={{ transition: "fill 0.15s" }}
                 >
-                  {labels[i]}
+                  {resolvedLabels[i]}
                 </text>
               </g>
             );
