@@ -1,7 +1,6 @@
 {
-  "buildCommand": "pnpm turbo run build --filter=web",
+  "buildCommand": "pnpm turbo run build --filter=web --no-cache",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install",
   "framework": null
-
 }
