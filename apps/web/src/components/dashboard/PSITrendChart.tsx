@@ -7,30 +7,28 @@ type PSITrendChartProps = {
 };
 
 const DEFAULT_DATA   = [65, 72, 70, 78, 75, 85, 82];
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DEFAULT_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-// Generate last 7 days ending today
-function getLast7DayLabels(): string[] {
-  const today = new Date();
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (6 - i));
-    return DAY_NAMES[d.getDay()];
-  });
-}
-
-// Straight polyline through all points
-function straightLine(pts: { x: number; y: number }[]): string {
+// Catmull-Rom spline — smooth through all points
+function catmullRom(pts: { x: number; y: number }[]): string {
   if (pts.length < 2) return "";
-  return pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x},${p.y}`).join(" ");
+  const T = 0.4;
+  let d = `M ${pts[0].x},${pts[0].y}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(i - 1, 0)];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[Math.min(i + 2, pts.length - 1)];
+    d += ` C ${p1.x + (p2.x - p0.x) * T},${p1.y + (p2.y - p0.y) * T} ${p2.x - (p3.x - p1.x) * T},${p2.y - (p3.y - p1.y) * T} ${p2.x},${p2.y}`;
+  }
+  return d;
 }
 
 export default function PSITrendChart({
   data   = DEFAULT_DATA,
-  labels = undefined,
+  labels = DEFAULT_LABELS,
   onHoverChange,
 }: PSITrendChartProps) {
-  const resolvedLabels = labels ?? getLast7DayLabels();
   const [lineDrawn,    setLineDrawn]    = useState(false);
   const [hovered,      setHovered]      = useState<number | null>(null);
 
@@ -38,7 +36,7 @@ export default function PSITrendChart({
   const H  = 180;
   const PL = 38;   // left padding — room for Y labels
   const PR = 16;
-  const PT = 24;
+  const PT = 16;
   const PB = 28;   // bottom — room for day labels
 
   const chartW = W - PL - PR;
@@ -63,7 +61,7 @@ export default function PSITrendChart({
     [safe]
   );
 
-  const linePath = useMemo(() => straightLine(pts), [pts]);
+  const linePath = useMemo(() => catmullRom(pts), [pts]);
   const areaPath = linePath
     ? `${linePath} L ${pts[pts.length-1].x},${PT + chartH} L ${pts[0].x},${PT + chartH} Z`
     : "";
@@ -76,7 +74,7 @@ export default function PSITrendChart({
   // Notify parent of hover state
   const handleEnter = (i: number) => {
     setHovered(i);
-    onHoverChange?.(safe[i], resolvedLabels[i] ?? null);
+    onHoverChange?.(safe[i], labels[i] ?? null);
   };
   const handleLeave = () => {
     setHovered(null);
@@ -86,7 +84,7 @@ export default function PSITrendChart({
   const activeIdx = hovered ?? safe.length - 1;
   const activeP   = pts[activeIdx];
   const activeV   = safe[activeIdx];
-  const activeL   = resolvedLabels[activeIdx] ?? "";
+  const activeL   = labels[activeIdx] ?? "";
 
   // Pill position — clamp inside chart
   const pillW  = 48;
@@ -100,9 +98,11 @@ export default function PSITrendChart({
   const yTicks: number[] = [];
   for (let t = tickStart; t <= vMax; t += tickStep) yTicks.push(t);
 
-  // Use CSS var directly — SVG resolves it live on theme change
-  const lineColor = "var(--chart-line)";
-  const valueColor = (_v: number) => lineColor;
+  // Colour by value
+  const valueColor = (v: number) =>
+    v >= 80 ? "var(--status-green)" : v >= 60 ? "#fbbf24" : "#ff5f52";
+
+  const lineColor = valueColor(activeV);
 
   // Improvement: compare first non-zero day to last non-zero day
   // Avoids ÷0 explosion when early days have no data yet
@@ -140,9 +140,9 @@ export default function PSITrendChart({
         <div
           className="px-2.5 py-1 rounded-lg text-[10px] font-bold"
           style={{
-            background: "var(--accent-glow)",
-            color:      Number(improvement) >= 0 ? "var(--chart-good)" : "var(--accent-danger)",
-            border:     "1px solid var(--border-medium)",
+            background: Number(improvement) >= 0 ? "var(--status-green-dim)" : "rgba(255,95,82,0.1)",
+            color:      Number(improvement) >= 0 ? "var(--status-green)" : "#ff5f52",
+            border:     `1px solid ${Number(improvement) >= 0 ? "var(--status-green-dim)" : "rgba(255,95,82,0.2)"}`,
           }}
         >
           {firstVal > 0
@@ -157,7 +157,7 @@ export default function PSITrendChart({
         <svg
           viewBox={`0 0 ${W} ${H}`}
           width="100%" height="100%"
-          style={{ overflow: "hidden" }}
+          style={{ overflow: "visible" }}
           onMouseLeave={handleLeave}
         >
           <defs>
@@ -182,13 +182,13 @@ export default function PSITrendChart({
               <g key={t}>
                 <line
                   x1={PL} y1={y} x2={W - PR} y2={y}
-                  stroke="var(--chart-grid)" strokeWidth="1"
+                  stroke="rgba(255,255,255,0.05)" strokeWidth="1"
                   strokeDasharray="4 4"
                 />
                 <text
                   x={PL - 6} y={y + 3.5}
                   textAnchor="end" fontSize="8.5"
-                  fill="var(--chart-text)" fontFamily="monospace"
+                  fill="rgba(255,255,255,0.22)" fontFamily="monospace"
                 >{t}</text>
               </g>
             );
@@ -215,8 +215,8 @@ export default function PSITrendChart({
             clipPath="url(#trendClip)"
             filter="url(#trendGlow)"
             style={{
-              strokeDasharray:  2000,
-              strokeDashoffset: lineDrawn ? 0 : 2000,
+              strokeDasharray:  1200,
+              strokeDashoffset: lineDrawn ? 0 : 1200,
               transition:       "stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)",
             }}
           />
@@ -234,7 +234,7 @@ export default function PSITrendChart({
                   width={chartW / safe.length}
                   height={chartH + PB}
                   fill="transparent"
-                  style={{ cursor: "default" }}
+                  style={{ cursor: "crosshair" }}
                   onMouseEnter={() => handleEnter(i)}
                 />
 
@@ -262,12 +262,12 @@ export default function PSITrendChart({
                 <text
                   x={p.x} y={H - 6}
                   textAnchor="middle" fontSize="9"
-                  fill={isActive ? col : "var(--chart-text)"}
+                  fill={isActive ? col : "rgba(255,255,255,0.25)"}
                   fontFamily="monospace"
                   fontWeight={isActive ? "bold" : "normal"}
                   style={{ transition: "fill 0.15s" }}
                 >
-                  {resolvedLabels[i]}
+                  {labels[i]}
                 </text>
               </g>
             );
@@ -286,7 +286,7 @@ export default function PSITrendChart({
               <rect
                 x={pillX} y={pillY}
                 width={pillW} height={pillH} rx="7"
-                fill="var(--bg-elevated)"
+                fill="rgba(10,15,12,0.85)"
                 stroke={lineColor} strokeWidth="1"
                 style={{ filter: "drop-shadow(0 2px 10px rgba(0,0,0,0.5))" }}
               />
@@ -294,7 +294,7 @@ export default function PSITrendChart({
               <text
                 x={pillX + pillW / 2} y={pillY + 11}
                 textAnchor="middle" fontSize="7.5"
-                fill="var(--chart-text)" fontFamily="monospace"
+                fill="rgba(255,255,255,0.45)" fontFamily="monospace"
               >{hovered !== null ? activeL : "Today"}</text>
               {/* PSI value */}
               <text

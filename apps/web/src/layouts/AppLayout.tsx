@@ -193,8 +193,8 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
             style={{ background: "var(--accent-glow)", border: "1px solid var(--border-subtle)" }}
           >
             <div className="relative flex items-center justify-center">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-blink" />
-              <span className="absolute w-4 h-4 rounded-full bg-green-500 opacity-20 animate-pulse-ring" />
+              <span className="w-2 h-2 rounded-full animate-blink" style={{ background: "var(--status-green)" }} />
+              <span className="absolute w-4 h-4 rounded-full opacity-20 animate-pulse-ring" style={{ background: "var(--status-green)" }} />
             </div>
             <div>
               <p className="text-[10px] font-semibold" style={{ color: "var(--text-primary)" }}>Live Tracking</p>

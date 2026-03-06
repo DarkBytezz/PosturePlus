@@ -199,8 +199,8 @@ export default function Monitor() {
       {recentRecalib && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold"
           style={{
-            background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.4)",
-            color: "#4ade80", backdropFilter: "blur(8px)", boxShadow: "0 0 20px rgba(74,222,128,0.2)",
+            background: "var(--status-green-dim)", border: "1px solid var(--status-green-edge)",
+            color: "var(--status-green)", backdropFilter: "blur(8px)", boxShadow: "0 0 20px var(--status-green-dim)",
           }}>
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-blink" />
           Baseline auto-recalibrated
@@ -234,9 +234,9 @@ export default function Monitor() {
                   <div className="relative w-28 h-28 flex items-center justify-center mb-4">
                     <svg className="absolute inset-0" width="112" height="112" viewBox="0 0 112 112">
                       <circle cx="56" cy="56" r="50" fill="none"
-                        stroke="rgba(74,222,128,0.15)" strokeWidth="4" />
+                        stroke="var(--status-green-dim)" strokeWidth="4" />
                       <circle cx="56" cy="56" r="50" fill="none"
-                        stroke="#4ade80" strokeWidth="4"
+                        stroke="var(--status-green)" strokeWidth="4"
                         strokeLinecap="round"
                         strokeDasharray={`${2 * Math.PI * 50}`}
                         strokeDashoffset={`${2 * Math.PI * 50 * (1 - countdown / 3)}`}
@@ -244,16 +244,16 @@ export default function Monitor() {
                           transformOrigin: "56px 56px",
                           transform: "rotate(-90deg)",
                           transition: "stroke-dashoffset 0.9s linear",
-                          filter: "drop-shadow(0 0 6px #4ade80)",
+                          filter: "drop-shadow(0 0 6px var(--status-green))",
                         }}
                       />
                     </svg>
                     <span className="text-5xl font-bold" style={{
-                      fontFamily: "'DM Serif Display', serif", color: "#4ade80",
-                      filter: "drop-shadow(0 0 12px #4ade80)",
+                      fontFamily: "'DM Serif Display', serif", color: "var(--status-green)",
+                      filter: "drop-shadow(0 0 12px var(--status-green))",
                     }}>{countdown}</span>
                   </div>
-                  <p className="text-sm font-semibold tracking-widest uppercase" style={{ color: "#4ade80" }}>
+                  <p className="text-sm font-semibold tracking-widest uppercase" style={{ color: "var(--status-green)" }}>
                     Sit straight
                   </p>
                   <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -263,14 +263,14 @@ export default function Monitor() {
               ) : (
                 <>
                   <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-                    style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.3)" }}>
+                    style={{ background: "var(--status-green-dim)", border: "1px solid var(--status-green-edge)" }}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                      stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      stroke="var(--status-green)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 2a10 10 0 1 0 10 10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
                   </div>
-                  <p className="text-sm font-bold tracking-widest uppercase" style={{ color: "#4ade80" }}>
+                  <p className="text-sm font-bold tracking-widest uppercase" style={{ color: "var(--status-green)" }}>
                     Calibrating…
                   </p>
                   <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -281,7 +281,7 @@ export default function Monitor() {
                     style={{ background: "rgba(255,255,255,0.1)" }}>
                     <div className="h-full rounded-full"
                       style={{
-                        background: "#4ade80",
+                        background: "var(--status-green)",
                         animation: "calibProgress 5s linear forwards",
                       }} />
                   </div>
@@ -289,43 +289,25 @@ export default function Monitor() {
               )}
             </div>
           )}
-
-          {/* ── Calibrate button — bottom overlay inside camera ──────────── */}
-          {!calibrating && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
-              <button
-                onClick={handleCalibration}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold tracking-wide transition-all duration-200"
-                style={{
-                  background: isCalibrated ? "rgba(10,15,12,0.7)" : "var(--accent-primary)",
-                  color: isCalibrated ? "#e5e5e5" : "var(--text-on-accent)",
-                  border: isCalibrated ? "1px solid rgba(255,255,255,0.15)" : "none",
-                  backdropFilter: "blur(12px)",
-                  boxShadow: isCalibrated ? "0 2px 12px rgba(0,0,0,0.3)" : "0 4px 20px var(--accent-glow-strong)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {isCalibrated ? (
-                  <>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                      <path d="M3 3v5h5"/>
-                    </svg>
-                    Recalibrate
-                  </>
-                ) : (
-                  <>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="3"/>
-                      <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
-                    </svg>
-                    Start Calibration
-                  </>
-                )}
-              </button>
-            </div>
-          )}
         </div>
+
+        {/* ── Calibrate button ──────────────────────────────────────────────── */}
+        <button
+          onClick={handleCalibration}
+          disabled={calibrating}
+          className="px-8 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-200"
+          style={{
+            background:  calibrating ? "var(--status-green-dim)" : "var(--accent-primary)",
+            color:       calibrating ? "var(--status-green)" : "var(--text-on-accent)",
+            border:      calibrating ? "1px solid var(--status-green-edge)" : "none",
+            opacity:     calibrating ? 0.8 : 1,
+            boxShadow:   calibrating ? "none" : "0 0 20px var(--status-green-edge)",
+          }}
+        >
+          {calibrating
+            ? countdown && countdown > 0 ? `Starting in ${countdown}…` : "Calibrating…"
+            : isCalibrated ? "↺ Recalibrate" : "Start Calibration"}
+        </button>
 
         <style>{`
           @keyframes calibProgress {

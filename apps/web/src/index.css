@@ -62,11 +62,13 @@
 
   /* Semantic chart colors — used by SVG charts */
   --chart-good:   #2E7D32;
+  --status-green:      #2E7D32;
+  --status-green-dim:  rgba(46,125,50,0.15);
+  --status-green-edge: rgba(46,125,50,0.35);
   --chart-caution:#B86C10;
   --chart-poor:   #B02A18;
   --chart-text:   rgba(90, 58, 20, 0.55);
   --chart-grid:   rgba(90, 58, 20, 0.12);
-  --chart-line:   #8B5E3C;
 }
 
 /* ─── DARK MODE: Near-black + emerald + champagne gold + teal ─── */
@@ -129,11 +131,13 @@
 
   /* Semantic chart colors */
   --chart-good:   #4ade80;
+  --status-green:      #4ade80;
+  --status-green-dim:  rgba(74,222,128,0.15);
+  --status-green-edge: rgba(74,222,128,0.35);
   --chart-caution:#fbbf24;
   --chart-poor:   #ff5f52;
   --chart-text:   rgba(255, 255, 255, 0.38);
   --chart-grid:   rgba(255, 255, 255, 0.09);
-  --chart-line:   #4A9268;
 }
 
 /* ─── BASE ─── */

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 type Zone = "GREEN" | "YELLOW" | "RED";
 
@@ -8,15 +8,13 @@ type Props = {
   isCalibrated: boolean;
 };
 
-// ── Zone color — reads CSS vars after styles resolve ─────────────────────────
+// ── Zone color — uses CSS vars so light/dark mode both look correct ──────────
 function getZoneColor(zone: Zone): string {
-  const style = getComputedStyle(document.documentElement);
-  const good    = style.getPropertyValue("--chart-good").trim();
-  const caution = style.getPropertyValue("--chart-caution").trim();
-  const poor    = style.getPropertyValue("--chart-poor").trim();
-  if (zone === "GREEN")  return good    || "#2E7D32";
-  if (zone === "YELLOW") return caution || "#B86C10";
-  return                        poor    || "#B02A18";
+  const el = document.documentElement;
+  const style = getComputedStyle(el);
+  if (zone === "GREEN")  return style.getPropertyValue("--chart-good").trim()   || "#2E7D32";
+  if (zone === "YELLOW") return style.getPropertyValue("--chart-caution").trim()|| "#B86C10";
+  return                        style.getPropertyValue("--chart-poor").trim()   || "#B02A18";
 }
 
 // ── Catmull-Rom smooth path ───────────────────────────────────────────────────
@@ -71,8 +69,8 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
     ? `${linePath} L ${pts[pts.length-1].x},${H - PAD.bottom} L ${pts[0].x},${H - PAD.bottom} Z`
     : "";
 
-  // Recompute color whenever zone changes (also picks up theme switches)
-  const lineColor = useMemo(() => getZoneColor(zone), [zone]);
+  // Gradient stop color based on current zone
+  const lineColor = getZoneColor(zone);
 
   // Y-axis grid lines at 25 / 50 / 75 / 100
   const gridLines = [25, 50, 75, 100];
@@ -169,17 +167,17 @@ export default function PSITimelineGraph({ psiHistory, zone, isCalibrated }: Pro
         {/* Red zone band: PSI 0–40 */}
         <rect
           x={PAD.left} y={toY(40)} width={innerW} height={toY(0) - toY(40)}
-          fill="var(--chart-poor)" fillOpacity="0.07" clipPath="url(#chart-clip)"
+          fill="rgba(255,95,82,0.07)" clipPath="url(#chart-clip)"
         />
         {/* Yellow zone band: PSI 40–70 */}
         <rect
           x={PAD.left} y={toY(70)} width={innerW} height={toY(40) - toY(70)}
-          fill="var(--chart-caution)" fillOpacity="0.06" clipPath="url(#chart-clip)"
+          fill="rgba(251,191,36,0.06)" clipPath="url(#chart-clip)"
         />
         {/* Green zone band: PSI 70–100 */}
         <rect
           x={PAD.left} y={toY(100)} width={innerW} height={toY(70) - toY(100)}
-          fill="var(--chart-good)" fillOpacity="0.06" clipPath="url(#chart-clip)"
+          fill="var(--status-green-dim)" clipPath="url(#chart-clip)"
         />
 
         {/* ── Grid lines ─────────────────────────────────────────────────── */}

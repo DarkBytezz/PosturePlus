@@ -30,9 +30,9 @@ function DevBar({ label, value, max, color }: {
   return (
     <div>
       <div className="flex justify-between items-center mb-1">
-        <span className="text-[10px] uppercase tracking-[0.12em] font-bold"
-          style={{ color: "var(--text-muted)" }}>{label}</span>
-        <span className="text-[11px] font-mono" style={{ color }}>
+        <span className="text-[9px] uppercase tracking-widest font-semibold"
+          style={{ color: "var(--text-faint)" }}>{label}</span>
+        <span className="text-[9px] font-mono" style={{ color }}>
           {value >= 0 ? "+" : ""}{value.toFixed(3)}
         </span>
       </div>
@@ -49,7 +49,7 @@ function DevBar({ label, value, max, color }: {
 // ── Heatmap bar ───────────────────────────────────────────────────────────────
 function HeatBar({ label, value, isWorst }: { label: string; value: number; isWorst: boolean }) {
   const pct = Math.min(value, 1) * 100;
-  const color = value > 0.6 ? "#ff5f52" : value > 0.3 ? "#fbbf24" : "#4ade80";
+  const color = value > 0.6 ? "#ff5f52" : value > 0.3 ? "#fbbf24" : "var(--status-green)";
   return (
     <div className="relative">
       <div className="flex justify-between items-center mb-1">
@@ -58,10 +58,10 @@ function HeatBar({ label, value, isWorst }: { label: string; value: number; isWo
             <span className="text-[7px] px-1 py-0.5 rounded font-bold"
               style={{ background: "rgba(255,95,82,0.15)", color: "#ff5f52" }}>WORST</span>
           )}
-          <span className="text-[10px] uppercase tracking-[0.12em] font-bold"
+          <span className="text-[9px] uppercase tracking-widest font-semibold"
             style={{ color: isWorst ? color : "var(--text-faint)" }}>{label}</span>
         </div>
-        <span className="text-[11px] font-mono" style={{ color }}>{Math.round(pct)}%</span>
+        <span className="text-[9px] font-mono" style={{ color }}>{Math.round(pct)}%</span>
       </div>
       <div className="h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
         <div
@@ -85,12 +85,12 @@ export default function BiometricsPanel({
 
   const psiColor =
     psi === undefined ? "var(--text-muted)"
-    : psi >= 80 ? "#4ade80"
+    : psi >= 80 ? "var(--status-green)"
     : psi >= 60 ? "#fbbf24"
     : "#ff5f52";
 
   const zoneColor =
-    zone === "RED" ? "#ff5f52" : zone === "YELLOW" ? "#fbbf24" : "#4ade80";
+    zone === "RED" ? "#ff5f52" : zone === "YELLOW" ? "#fbbf24" : "var(--status-green)";
 
   // Worst heatmap axis
   const heatEntries = [
@@ -101,7 +101,7 @@ export default function BiometricsPanel({
   const worstKey = [...heatEntries].sort((a, b) => b.value - a.value)[0].key;
 
   return (
-    <div className="flex flex-col gap-3" style={{ width: "320px" }}>
+    <div className="flex flex-col gap-3 h-full" style={{ width: "320px" }}>
 
       {/* ── Zone + alert status ─────────────────────────────────────────── */}
       <div
@@ -128,12 +128,12 @@ export default function BiometricsPanel({
         </div>
 
         {zone === "RED" && redStreakSec > 0 && (
-          <span className="text-[11px] font-mono" style={{ color: "#ff5f52" }}>
+          <span className="text-[9px] font-mono" style={{ color: "#ff5f52" }}>
             {redStreakSec}s in red
           </span>
         )}
 
-        <span className="text-[11px] font-mono font-semibold" style={{ color: "var(--text-muted)" }}>
+        <span className="text-[9px] font-mono" style={{ color: "var(--text-faint)" }}>
           {durationFormatted}
         </span>
       </div>
@@ -144,22 +144,20 @@ export default function BiometricsPanel({
         style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)" }}
       >
         <div>
-          <p className="text-[11px] uppercase tracking-[0.12em] font-bold mb-1.5"
-            style={{ color: "var(--text-muted)" }}>PSI Score</p>
-          <p className="text-4xl font-bold leading-none" style={{ color: psiColor,
-            fontFamily: "'DM Serif Display', serif",
-            textShadow: `0 0 24px ${psiColor}50` }}>
+          <p className="text-[9px] uppercase tracking-widest font-semibold mb-1"
+            style={{ color: "var(--text-faint)" }}>PSI Score</p>
+          <p className="text-3xl font-bold font-mono leading-none" style={{ color: psiColor,
+            fontFamily: "'DM Serif Display', serif" }}>
             {psi !== undefined ? psi : "--"}
           </p>
-          <p className="text-[10px] mt-1.5 font-medium" style={{ color: "var(--text-muted)" }}>/100</p>
+          <p className="text-[9px] mt-1" style={{ color: "var(--text-faint)" }}>/100</p>
         </div>
 
         <div className="text-right">
-          <p className="text-[11px] uppercase tracking-[0.12em] font-bold mb-1.5"
-            style={{ color: "var(--text-muted)" }}>Accuracy</p>
-          <p className="text-3xl font-bold" style={{ color: "#4ade80",
-            fontFamily: "'DM Serif Display', serif",
-            textShadow: "0 0 18px rgba(74,222,128,0.4)" }}>{accuracy}%</p>
+          <p className="text-[9px] uppercase tracking-widest font-semibold mb-1"
+            style={{ color: "var(--text-faint)" }}>Accuracy</p>
+          <p className="text-2xl font-bold font-mono" style={{ color: "var(--status-green)",
+            fontFamily: "'DM Serif Display', serif" }}>{accuracy}%</p>
         </div>
       </div>
 
@@ -168,8 +166,8 @@ export default function BiometricsPanel({
         className="rounded-2xl p-4"
         style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}
       >
-        <p className="text-[10px] uppercase tracking-[0.12em] font-bold mb-2"
-          style={{ color: "var(--text-muted)" }}>PSI Live</p>
+        <p className="text-[9px] uppercase tracking-widest font-semibold mb-2"
+          style={{ color: "var(--text-faint)" }}>PSI Live</p>
         <Sparkline values={psiHistory.slice(-40)} zone={zone} />
       </div>
 
@@ -178,11 +176,11 @@ export default function BiometricsPanel({
         className="rounded-2xl p-4 flex flex-col gap-3"
         style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)" }}
       >
-        <p className="text-[10px] uppercase tracking-[0.12em] font-bold"
-          style={{ color: "var(--text-muted)" }}>Live Deviations</p>
-        <DevBar label="Forward Lean"       value={forward_dev}  max={0.12} color={Math.abs(forward_dev)  > 0.12 ? "#ff5f52" : Math.abs(forward_dev)  > 0.06 ? "#fbbf24" : "#4ade80"} />
-        <DevBar label="Lateral Tilt"       value={lateral_dev}  max={0.12} color={Math.abs(lateral_dev)  > 0.12 ? "#ff5f52" : Math.abs(lateral_dev)  > 0.06 ? "#fbbf24" : "#4ade80"} />
-        <DevBar label="Shoulder Imbalance" value={shoulder_dev} max={0.08} color={Math.abs(shoulder_dev) > 0.08 ? "#ff5f52" : Math.abs(shoulder_dev) > 0.04 ? "#fbbf24" : "#4ade80"} />
+        <p className="text-[9px] uppercase tracking-widest font-semibold"
+          style={{ color: "var(--text-faint)" }}>Live Deviations</p>
+        <DevBar label="Forward Lean"       value={forward_dev}  max={0.12} color={Math.abs(forward_dev)  > 0.12 ? "#ff5f52" : Math.abs(forward_dev)  > 0.06 ? "#fbbf24" : "var(--status-green)"} />
+        <DevBar label="Lateral Tilt"       value={lateral_dev}  max={0.12} color={Math.abs(lateral_dev)  > 0.12 ? "#ff5f52" : Math.abs(lateral_dev)  > 0.06 ? "#fbbf24" : "var(--status-green)"} />
+        <DevBar label="Shoulder Imbalance" value={shoulder_dev} max={0.08} color={Math.abs(shoulder_dev) > 0.08 ? "#ff5f52" : Math.abs(shoulder_dev) > 0.04 ? "#fbbf24" : "var(--status-green)"} />
       </div>
 
       {/* ── Posture heatmap ─────────────────────────────────────────────── */}
@@ -190,8 +188,8 @@ export default function BiometricsPanel({
         className="rounded-2xl p-4 flex flex-col gap-3"
         style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}
       >
-        <p className="text-[10px] uppercase tracking-[0.12em] font-bold"
-          style={{ color: "var(--text-muted)" }}>60s Heatmap</p>
+        <p className="text-[9px] uppercase tracking-widest font-semibold"
+          style={{ color: "var(--text-faint)" }}>60s Heatmap</p>
         {heatEntries.map(({ key, label, value }) => (
           <HeatBar key={key} label={label} value={value} isWorst={key === worstKey && value > 0.05} />
         ))}
@@ -199,17 +197,17 @@ export default function BiometricsPanel({
 
       {/* ── Smart insights ───────────────────────────────────────────────── */}
       <div
-        className="rounded-2xl p-4 flex flex-col gap-2.5"
+        className="rounded-2xl p-4 flex flex-col gap-2.5 flex-1"
         style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)" }}
       >
-        <p className="text-[10px] uppercase tracking-[0.12em] font-bold"
-          style={{ color: "var(--text-muted)" }}>Insights</p>
+        <p className="text-[9px] uppercase tracking-widest font-semibold"
+          style={{ color: "var(--text-faint)" }}>Insights</p>
         {insights.map((msg, i) => (
           <div key={i} className="flex items-start gap-2.5">
             <span className="text-sm leading-none mt-0.5">{msg.icon}</span>
-            <p className="text-xs leading-relaxed"
+            <p className="text-[11px] leading-relaxed"
               style={{
-                color: msg.severity === "good" ? "#4ade80"
+                color: msg.severity === "good" ? "var(--status-green)"
                      : msg.severity === "warn" ? "#fbbf24"
                      : "var(--text-muted)",
               }}>
