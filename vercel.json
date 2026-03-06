@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm turbo run build --filter=web --no-cache",
+  "buildCommand": "pnpm turbo run build --filter=web --cache=local:r,remote:r",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install",
   "framework": null
