@@ -59,20 +59,24 @@ export default function PSITrendChart({
   const toX = (i: number) => PL + (i / (safe.length - 1)) * chartW;
   const toY = (v: number) => PT + chartH - ((v - vMin) / vRange) * chartH;
 
-  type Point = { x: number; y: number; v: number };
+  type Point = { x: number; y: number; v: number; isNull: boolean };
 
+  // Keep ALL points (one per day), nulls go to bottom of chart
   const pts = useMemo<Point[]>(() =>
-    safe
-      .map((v, i) =>
-        v === null ? null : { x: toX(i), y: toY(v), v }
-      )
-      .filter((p): p is Point => p !== null),
+    safe.map((v, i) => ({
+      x: toX(i),
+      y: v === null ? toY(0) : toY(v),
+      v: v ?? 0,
+      isNull: v === null,
+    })),
     [safe]
   );
 
-  const linePath = useMemo(() => straightLine(pts), [pts]);
-  const areaPath = linePath
-    ? `${linePath} L ${pts[pts.length - 1].x},${PT + chartH} L ${pts[0].x},${PT + chartH} Z`
+  // Only draw line through real (non-null) points
+  const realPts = pts.filter(p => !p.isNull);
+  const linePath = useMemo(() => straightLine(realPts), [realPts]);
+  const areaPath = linePath && realPts.length >= 2
+    ? `${linePath} L ${realPts[realPts.length - 1].x},${PT + chartH} L ${realPts[0].x},${PT + chartH} Z`
     : "";
 
   useEffect(() => {
@@ -83,16 +87,17 @@ export default function PSITrendChart({
   // Notify parent of hover state
   const handleEnter = (i: number) => {
     setHovered(i);
-    onHoverChange?.(safe[i] ?? null, resolvedLabels[i] ?? null);
+    const val = pts[i]?.isNull ? 0 : (pts[i]?.v ?? null);
+    onHoverChange?.(val, resolvedLabels[i] ?? null);
   };
   const handleLeave = () => {
     setHovered(null);
     onHoverChange?.(null, null);
   };
 
-  const activeIdx = hovered ?? safe.length - 1;
-  const activeP = pts[Math.min(activeIdx, pts.length - 1)];
-  const activeV = safe[activeIdx] ?? 0;
+  const activeIdx = hovered ?? pts.length - 1;
+  const activeP = pts[Math.min(activeIdx, pts.length - 1)] ?? pts[pts.length - 1];
+  const activeV = pts[activeIdx]?.v ?? 0;
   const activeL = resolvedLabels[activeIdx] ?? "";
 
   // Pill position — clamp inside chart
@@ -230,7 +235,7 @@ export default function PSITrendChart({
           {/* Day labels + hit areas */}
           {pts.map((p, i) => {
             const isActive = i === activeIdx;
-            const col = valueColor(safe[i] ?? 0);
+            const col = valueColor(p.v);
             return (
               <g key={i}>
                 {/* Invisible wide hit strip for easy hover */}
@@ -244,25 +249,24 @@ export default function PSITrendChart({
                   onMouseEnter={() => handleEnter(i)}
                 />
 
-                {/* Dot outer ring */}
-                <circle cx={p.x} cy={p.y} r={isActive ? 7 : 4.5}
+                {/* Dot outer ring — hidden for null days */}
+                {!p.isNull && <circle cx={p.x} cy={p.y} r={isActive ? 7 : 4.5}
                   fill="transparent"
                   stroke={col} strokeWidth={isActive ? 2 : 1.5}
                   style={{
                     opacity: lineDrawn ? 1 : 0,
                     transition: `all 0.18s ease ${600 + i * 60}ms`,
-                    filter: isActive ? `drop-shadow(0 0 6px ${col})` : "none",
                   }}
-                />
-                {/* Dot inner fill */}
-                <circle cx={p.x} cy={p.y} r={isActive ? 3.5 : 2}
+                />}
+                {/* Dot inner fill — hidden for null days */}
+                {!p.isNull && <circle cx={p.x} cy={p.y} r={isActive ? 3.5 : 2}
                   fill={col}
                   style={{
                     opacity: lineDrawn ? 1 : 0,
                     transition: `all 0.18s ease ${600 + i * 60}ms`,
                   }}
                   pointerEvents="none"
-                />
+                />}
 
                 {/* Day label */}
                 <text
