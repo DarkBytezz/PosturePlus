@@ -4,11 +4,13 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/logo.png" />
+  <!-- redeploy trigger -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Posture+</title>
   <script>
     const storedTheme = localStorage.getItem("theme");
     const theme = storedTheme ? storedTheme : "dark";
+
     const root = document.documentElement;
 
     if (theme === "dark") {
