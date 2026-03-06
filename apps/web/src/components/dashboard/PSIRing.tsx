@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 type PSIRingProps = {
-  value: number;
+  value: number | null;
   size?: number; // optional, defaults to 140
 };
 
@@ -11,8 +11,11 @@ export default function PSIRing({ value, size = 140 }: PSIRingProps) {
   const [animated, setAnimated] = useState(false);
 
   // Clamp value safely
-  const safeValue = Math.max(0, Math.min(PSI_MAX, value));
+  const hasData = value !== null;
 
+  const safeValue = hasData
+    ? Math.max(0, Math.min(PSI_MAX, value))
+    : 0;
   // Dynamic sizing
   const strokeWidth = size * 0.043;
   const radius = (size / 2) - strokeWidth;
@@ -29,13 +32,13 @@ export default function PSIRing({ value, size = 140 }: PSIRingProps) {
   }, []);
 
   // Color thresholds
-  const color =
-    safeValue >= 80
+  const color = !hasData
+    ? "var(--text-muted)"
+    : safeValue >= 80
       ? "#4CAF82"
       : safeValue >= 60
-      ? "#E9A84C"
-      : "#E05B5B";
-
+        ? "#E9A84C"
+        : "#E05B5B";
   return (
     <div
       className="relative flex items-center justify-center"
@@ -95,7 +98,7 @@ export default function PSIRing({ value, size = 140 }: PSIRingProps) {
             color,
           }}
         >
-          {safeValue}
+          {hasData ? safeValue : "—"}
         </span>
         <span
           className="text-[9px] tracking-widest uppercase mt-0.5"

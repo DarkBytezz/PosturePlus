@@ -1,8 +1,11 @@
 import CameraView from "../components/monitor/CameraView";
 import BiometricsPanel from "../components/monitor/BiometricsPanel";
 import PSITimelineGraph from "../components/monitor/PSITimelineGraph";
+import AlertSettingsPanel from "../components/monitor/AlertSettingsPanel";
 import { PostureEngine } from "../pose/engine/PostureEngine";
 import { PostureAlerts } from "../pose/alerts/PostureAlerts";
+import type { AlertSettings } from "../pose/alerts/PostureAlerts";
+import { DEFAULT_ALERT_SETTINGS } from "../pose/alerts/PostureAlerts";
 import { PostureInsights } from "../pose/insights/PostureInsights";
 import type { InsightMessage } from "../pose/insights/PostureInsights";
 import { useEffect, useRef, useCallback, useState } from "react";
@@ -38,6 +41,17 @@ export default function Monitor() {
   // ── Heatmap: rolling severity per axis (0–1) ───────────────────────────────
   const [heatmap, setHeatmap] = useState({ forward: 0, lateral: 0, shoulder: 0 });
   const heatmapRef = useRef({ forward: 0, lateral: 0, shoulder: 0 });
+
+  // ── Alert settings ─────────────────────────────────────────────────────────
+  const [alertSettings, setAlertSettings] = useState<AlertSettings>(DEFAULT_ALERT_SETTINGS);
+  const [showAlertSettings, setShowAlertSettings] = useState(false);
+  const handleAlertSettingsChange = (partial: Partial<AlertSettings>) => {
+    setAlertSettings(prev => {
+      const next = { ...prev, ...partial };
+      alertsRef.current.updateSettings(next);
+      return next;
+    });
+  };
 
   // ── Session stats ref for cleanup ─────────────────────────────────────────
   const sessionStatsRef = useRef({
@@ -111,7 +125,7 @@ export default function Monitor() {
     // ── Alerts ──────────────────────────────────────────────────────────────
     const fired = alertsRef.current.update(data.zone);
     const streak = alertsRef.current.getRedStreakMs();
-    setAlertActive(fired);
+    setAlertActive(fired && alertSettings.enableVisualFlash);
     setRedStreakSec(Math.floor(streak / 1000));
     if (fired) setTimeout(() => setAlertActive(false), 2000);
 
@@ -199,8 +213,8 @@ export default function Monitor() {
       {recentRecalib && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold"
           style={{
-            background: "var(--status-green-dim)", border: "1px solid var(--status-green-edge)",
-            color: "var(--status-green)", backdropFilter: "blur(8px)", boxShadow: "0 0 20px var(--status-green-dim)",
+            background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.4)",
+            color: "#4ade80", backdropFilter: "blur(8px)", boxShadow: "0 0 20px rgba(74,222,128,0.2)",
           }}>
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-blink" />
           Baseline auto-recalibrated
@@ -234,9 +248,9 @@ export default function Monitor() {
                   <div className="relative w-28 h-28 flex items-center justify-center mb-4">
                     <svg className="absolute inset-0" width="112" height="112" viewBox="0 0 112 112">
                       <circle cx="56" cy="56" r="50" fill="none"
-                        stroke="var(--status-green-dim)" strokeWidth="4" />
+                        stroke="rgba(74,222,128,0.15)" strokeWidth="4" />
                       <circle cx="56" cy="56" r="50" fill="none"
-                        stroke="var(--status-green)" strokeWidth="4"
+                        stroke="#4ade80" strokeWidth="4"
                         strokeLinecap="round"
                         strokeDasharray={`${2 * Math.PI * 50}`}
                         strokeDashoffset={`${2 * Math.PI * 50 * (1 - countdown / 3)}`}
@@ -244,16 +258,16 @@ export default function Monitor() {
                           transformOrigin: "56px 56px",
                           transform: "rotate(-90deg)",
                           transition: "stroke-dashoffset 0.9s linear",
-                          filter: "drop-shadow(0 0 6px var(--status-green))",
+                          filter: "drop-shadow(0 0 6px #4ade80)",
                         }}
                       />
                     </svg>
                     <span className="text-5xl font-bold" style={{
-                      fontFamily: "'DM Serif Display', serif", color: "var(--status-green)",
-                      filter: "drop-shadow(0 0 12px var(--status-green))",
+                      fontFamily: "'DM Serif Display', serif", color: "#4ade80",
+                      filter: "drop-shadow(0 0 12px #4ade80)",
                     }}>{countdown}</span>
                   </div>
-                  <p className="text-sm font-semibold tracking-widest uppercase" style={{ color: "var(--status-green)" }}>
+                  <p className="text-sm font-semibold tracking-widest uppercase" style={{ color: "#4ade80" }}>
                     Sit straight
                   </p>
                   <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -263,14 +277,14 @@ export default function Monitor() {
               ) : (
                 <>
                   <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-                    style={{ background: "var(--status-green-dim)", border: "1px solid var(--status-green-edge)" }}>
+                    style={{ background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.3)" }}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
-                      stroke="var(--status-green)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M12 2a10 10 0 1 0 10 10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
                   </div>
-                  <p className="text-sm font-bold tracking-widest uppercase" style={{ color: "var(--status-green)" }}>
+                  <p className="text-sm font-bold tracking-widest uppercase" style={{ color: "#4ade80" }}>
                     Calibrating…
                   </p>
                   <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -281,7 +295,7 @@ export default function Monitor() {
                     style={{ background: "rgba(255,255,255,0.1)" }}>
                     <div className="h-full rounded-full"
                       style={{
-                        background: "var(--status-green)",
+                        background: "#4ade80",
                         animation: "calibProgress 5s linear forwards",
                       }} />
                   </div>
@@ -291,23 +305,58 @@ export default function Monitor() {
           )}
         </div>
 
-        {/* ── Calibrate button ──────────────────────────────────────────────── */}
-        <button
-          onClick={handleCalibration}
-          disabled={calibrating}
-          className="px-8 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-200"
-          style={{
-            background:  calibrating ? "var(--status-green-dim)" : "var(--accent-primary)",
-            color:       calibrating ? "var(--status-green)" : "var(--text-on-accent)",
-            border:      calibrating ? "1px solid var(--status-green-edge)" : "none",
-            opacity:     calibrating ? 0.8 : 1,
-            boxShadow:   calibrating ? "none" : "0 0 20px var(--status-green-edge)",
-          }}
-        >
-          {calibrating
-            ? countdown && countdown > 0 ? `Starting in ${countdown}…` : "Calibrating…"
-            : isCalibrated ? "↺ Recalibrate" : "Start Calibration"}
-        </button>
+        {/* ── Calibrate + Alert settings row ───────────────────────────────── */}
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "stretch", position: "relative" }}>
+
+          <button
+            onClick={handleCalibration}
+            disabled={calibrating}
+            className="flex-1 px-8 py-3 rounded-xl text-sm font-bold tracking-wide transition-all duration-200"
+            style={{
+              background:  calibrating ? "rgba(74,222,128,0.1)" : "var(--accent-primary)",
+              color:       calibrating ? "#4ade80" : "var(--text-on-accent)",
+              border:      calibrating ? "1px solid rgba(74,222,128,0.3)" : "none",
+              opacity:     calibrating ? 0.8 : 1,
+              boxShadow:   calibrating ? "none" : "0 0 20px rgba(74,222,128,0.3)",
+            }}
+          >
+            {calibrating
+              ? countdown && countdown > 0 ? `Starting in ${countdown}…` : "Calibrating…"
+              : isCalibrated ? "↺ Recalibrate" : "Start Calibration"}
+          </button>
+
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={() => setShowAlertSettings(p => !p)}
+              className="h-full px-3 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+              style={{
+                background: showAlertSettings ? "var(--accent-glow)" : "var(--bg-elevated)",
+                color: showAlertSettings ? "var(--accent-primary)" : "var(--text-muted)",
+                border: `1px solid ${showAlertSettings ? "var(--accent-primary)" : "var(--border-subtle)"}`,
+                whiteSpace: "nowrap",
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              Alerts
+              {!alertSettings.enableSound && !alertSettings.enableNotification && !alertSettings.enableVisualFlash && (
+                <span style={{
+                  background: "var(--text-muted)", color: "var(--bg-primary)",
+                  borderRadius: "100px", padding: "1px 5px", fontSize: "0.58rem", fontWeight: 700,
+                }}>OFF</span>
+              )}
+            </button>
+            {showAlertSettings && (
+              <AlertSettingsPanel
+                settings={alertSettings}
+                onChange={handleAlertSettingsChange}
+                onClose={() => setShowAlertSettings(false)}
+              />
+            )}
+          </div>
+
+        </div>
 
         <style>{`
           @keyframes calibProgress {

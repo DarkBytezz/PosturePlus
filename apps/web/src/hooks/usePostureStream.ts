@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "./useAuth";
 import {
-  startSession      as dbStartSession,
-  saveSamples       as dbSaveSamples,
-  endSession        as dbEndSession,
+  startSession as dbStartSession,
+  saveSamples as dbSaveSamples,
+  endSession as dbEndSession,
   upsertDailySummary,
   fetchWeeklySummary,
   fetchSessions,
@@ -22,23 +22,23 @@ export type LivePostureData = {
 };
 
 export type SessionRecord = {
-  id:              string;
-  date:            string;          // display string e.g. "Wed, Mar 4"
-  startTimestamp:  number;          // Date.now() at calibration
-  durationSec:     number;
-  meanPsi:         number;
-  minPsi:          number;
-  maxPsi:          number;
-  accuracy:        number;          // % green time
-  alerts:          number;          // RED zone entries
-  autoRecalibs:    number;
-  greenPct:        number;          // 0–100
-  yellowPct:       number;
-  redPct:          number;
-  psiTimeline:     number[];        // sampled PSI values for mini sparkline
-  fatigueFlag:     boolean;
-  psiSlope:        number;
-  sdi:             number;          // stability degradation index
+  id: string;
+  date: string;          // display string e.g. "Wed, Mar 4"
+  startTimestamp: number;          // Date.now() at calibration
+  durationSec: number;
+  meanPsi: number;
+  minPsi: number;
+  maxPsi: number;
+  accuracy: number;          // % green time
+  alerts: number;          // RED zone entries
+  autoRecalibs: number;
+  greenPct: number;          // 0–100
+  yellowPct: number;
+  redPct: number;
+  psiTimeline: number[];        // sampled PSI values for mini sparkline
+  fatigueFlag: boolean;
+  psiSlope: number;
+  sdi: number;          // stability degradation index
 };
 
 export function usePostureStream() {
@@ -58,16 +58,16 @@ export function usePostureStream() {
       if (!rows.length) return;
 
       // Build 7-slot array — today is slot 6, 6 days ago is slot 0
-      const slots = [0, 0, 0, 0, 0, 0, 0];
+      const slots: (number | null)[] = [null, null, null, null, null, null, null];
       const today = new Date();
 
       rows.forEach(row => {
-        const rowDate  = new Date(row.date);
+        const rowDate = new Date(row.date);
         const diffDays = Math.round(
-          (today.setHours(0,0,0,0) - rowDate.setHours(0,0,0,0)) / 86400000
+          (today.setHours(0, 0, 0, 0) - rowDate.setHours(0, 0, 0, 0)) / 86400000
         );
         const slot = 6 - diffDays;
-        if (slot >= 0 && slot <= 6) slots[slot] = Math.round(row.avg_psi ?? 0);
+        if (slot >= 0 && slot <= 6) slots[slot] = row.avg_psi !== null ? Math.round(row.avg_psi) : null;
       });
 
       setWeeklyData(slots);
@@ -78,30 +78,30 @@ export function usePostureStream() {
       if (!rows.length) return;
 
       const records: SessionRecord[] = rows.map(r => ({
-        id:             r.id,
-        date:           (() => {
-                          const d = new Date(r.start_time);
-                          return d.toLocaleDateString("en-IN", {
-                            weekday: "short", day: "numeric", month: "short", year: "numeric",
-                          }) + ", " + d.toLocaleTimeString("en-IN", {
-                            hour: "2-digit", minute: "2-digit", hour12: true,
-                          });
-                        })(),
+        id: r.id,
+        date: (() => {
+          const d = new Date(r.start_time);
+          return d.toLocaleDateString("en-IN", {
+            weekday: "short", day: "numeric", month: "short", year: "numeric",
+          }) + ", " + d.toLocaleTimeString("en-IN", {
+            hour: "2-digit", minute: "2-digit", hour12: true,
+          });
+        })(),
         startTimestamp: new Date(r.start_time).getTime(),
-        durationSec:    r.duration_seconds ?? 0,
-        meanPsi:        Math.round(r.mean_psi ?? 0),
-        minPsi:         Math.round(r.min_psi  ?? 0),
-        maxPsi:         Math.round(r.max_psi  ?? 0),
-        accuracy:       Math.round(r.green_pct ?? 0),
-        alerts:         r.alerts        ?? 0,
-        autoRecalibs:   r.auto_recalibs ?? 0,
-        greenPct:       Math.round(r.green_pct  ?? 0),
-        yellowPct:      Math.round(r.yellow_pct ?? 0),
-        redPct:         Math.round(r.red_pct    ?? 0),
-        psiTimeline:    (r.psi_timeline ?? []).map((p: { psi: number }) => p.psi),
-        fatigueFlag:    r.fatigue_flag  ?? false,
-        psiSlope:       r.psi_slope     ?? 0,
-        sdi:            r.sdi           ?? 0,
+        durationSec: r.duration_seconds ?? 0,
+        meanPsi: Math.round(r.mean_psi ?? 0),
+        minPsi: Math.round(r.min_psi ?? 0),
+        maxPsi: Math.round(r.max_psi ?? 0),
+        accuracy: Math.round(r.green_pct ?? 0),
+        alerts: r.alerts ?? 0,
+        autoRecalibs: r.auto_recalibs ?? 0,
+        greenPct: Math.round(r.green_pct ?? 0),
+        yellowPct: Math.round(r.yellow_pct ?? 0),
+        redPct: Math.round(r.red_pct ?? 0),
+        psiTimeline: (r.psi_timeline ?? []).map((p: { psi: number }) => p.psi),
+        fatigueFlag: r.fatigue_flag ?? false,
+        psiSlope: r.psi_slope ?? 0,
+        sdi: r.sdi ?? 0,
       }));
 
       setSessionHistory(records);
@@ -110,43 +110,44 @@ export function usePostureStream() {
   }, [user]);
 
   // ── Live engine state ──────────────────────────────────────────────────────
-  const [psi,          setPsi]          = useState<number>(0);
-  const [zone,         setZone]         = useState<Zone>("GREEN");
+  const [psi, setPsi] = useState<number>(0);
+  const [zone, setZone] = useState<Zone>("GREEN");
   const [isCalibrated, setIsCalibrated] = useState(false);
-  const [isActive,     setIsActive]     = useState(false);
+  const [isActive, setIsActive] = useState(false);
 
   // ── Session stats ──────────────────────────────────────────────────────────
-  const [sessionSeconds,  setSessionSeconds]  = useState(0);
-  const [alerts,          setAlerts]          = useState(0);
-  const [autoRecalibs,    setAutoRecalibs]    = useState(0);
-  const [greenSeconds,    setGreenSeconds]    = useState(0);
-  const [yellowSeconds,   setYellowSeconds]   = useState(0);
-  const [redSeconds,      setRedSeconds]      = useState(0);
-  const [totalSeconds,    setTotalSeconds]    = useState(0);
-  const [minPsi,          setMinPsi]          = useState(100);
-  const [maxPsi,          setMaxPsi]          = useState(0);
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [alerts, setAlerts] = useState(0);
+  const [autoRecalibs, setAutoRecalibs] = useState(0);
+  const [greenSeconds, setGreenSeconds] = useState(0);
+  const [yellowSeconds, setYellowSeconds] = useState(0);
+  const [redSeconds, setRedSeconds] = useState(0);
+  const [totalSeconds, setTotalSeconds] = useState(0);
+  const [minPsi, setMinPsi] = useState(100);
+  const [maxPsi, setMaxPsi] = useState(0);
 
   // ── PSI history ────────────────────────────────────────────────────────────
-  const [psiHistory,      setPsiHistory]      = useState<number[]>([]);
-  const [weeklyData,      setWeeklyData]      = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
-
+  const [psiHistory, setPsiHistory] = useState<number[]>([]);
+  const [weeklyData, setWeeklyData] = useState<(number | null)[]>([
+    null, null, null, null, null, null, null
+  ]);
   // ── Session history (persisted across sessions in memory) ─────────────────
-  const [sessionHistory,  setSessionHistory]  = useState<SessionRecord[]>([]);
+  const [sessionHistory, setSessionHistory] = useState<SessionRecord[]>([]);
 
   // ── Internal refs ──────────────────────────────────────────────────────────
-  const timerRef          = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sampleTimerRef    = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastZoneRef       = useRef<Zone>("GREEN");
-  const currentZoneRef    = useRef<Zone>("GREEN");
-  const psiSnapshotRef    = useRef<number>(0);
-  const sessionStartRef   = useRef<number>(0);
-  const psiTimelineRef    = useRef<number[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const sampleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastZoneRef = useRef<Zone>("GREEN");
+  const currentZoneRef = useRef<Zone>("GREEN");
+  const psiSnapshotRef = useRef<number>(0);
+  const sessionStartRef = useRef<number>(0);
+  const psiTimelineRef = useRef<number[]>([]);
 
   // ── DB refs ────────────────────────────────────────────────────────────────
-  const dbSessionIdRef    = useRef<string | null>(null);
-  const sampleBufferRef   = useRef<PostureSample[]>([]);
-  const dbFlushTimerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
-  const latestDevsRef     = useRef({ forward: 0, lateral: 0, shoulder: 0, zone: "GREEN" as Zone });
+  const dbSessionIdRef = useRef<string | null>(null);
+  const sampleBufferRef = useRef<PostureSample[]>([]);
+  const dbFlushTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const latestDevsRef = useRef({ forward: 0, lateral: 0, shoulder: 0, zone: "GREEN" as Zone });
 
   // ── Called every engine frame ──────────────────────────────────────────────
   const pushLiveData = useCallback((data: LivePostureData) => {
@@ -157,10 +158,10 @@ export function usePostureStream() {
 
     // Track latest deviations for 5s sample flush
     latestDevsRef.current = {
-      forward:  data.forward_dev,
-      lateral:  data.lateral_dev,
+      forward: data.forward_dev,
+      lateral: data.lateral_dev,
       shoulder: data.shoulder_dev,
-      zone:     data.zone,
+      zone: data.zone,
     };
 
     if (data.zone === "RED" && lastZoneRef.current !== "RED") {
@@ -181,9 +182,9 @@ export function usePostureStream() {
     setIsCalibrated(true);
     setIsActive(true);
 
-    sessionStartRef.current  = Date.now();
-    psiTimelineRef.current   = [];
-    sampleBufferRef.current  = [];
+    sessionStartRef.current = Date.now();
+    psiTimelineRef.current = [];
+    sampleBufferRef.current = [];
 
     setSessionSeconds(0);
     setAlerts(0);
@@ -195,7 +196,7 @@ export function usePostureStream() {
     setMinPsi(100);
     setMaxPsi(0);
     setPsiHistory([]);
-    lastZoneRef.current    = "GREEN";
+    lastZoneRef.current = "GREEN";
     currentZoneRef.current = "GREEN";
 
     // ── Start DB session ───────────────────────────────────────────────────
@@ -210,9 +211,9 @@ export function usePostureStream() {
       setSessionSeconds(prev => prev + 1);
       setTotalSeconds(prev => prev + 1);
       const z = currentZoneRef.current;
-      if      (z === "GREEN")  setGreenSeconds( prev => prev + 1);
+      if (z === "GREEN") setGreenSeconds(prev => prev + 1);
       else if (z === "YELLOW") setYellowSeconds(prev => prev + 1);
-      else if (z === "RED")    setRedSeconds(   prev => prev + 1);
+      else if (z === "RED") setRedSeconds(prev => prev + 1);
     }, 1000);
 
     // PSI sampler every 3s (for sparkline)
@@ -239,7 +240,7 @@ export function usePostureStream() {
     if (dbFlushTimerRef.current) clearInterval(dbFlushTimerRef.current);
     dbFlushTimerRef.current = setInterval(() => {
       const sessionId = dbSessionIdRef.current;
-      const psi       = psiSnapshotRef.current;
+      const psi = psiSnapshotRef.current;
       if (!sessionId || psi === 0) return;
 
       const { forward, lateral, shoulder, zone } = latestDevsRef.current;
@@ -247,10 +248,10 @@ export function usePostureStream() {
       // Add sample to buffer
       sampleBufferRef.current.push({
         sessionId,
-        timestamp:   new Date().toISOString(),
-        psi:         Math.round(psi * 10) / 10,
-        forwardDev:  Math.round(forward  * 1000) / 1000,
-        lateralDev:  Math.round(lateral  * 1000) / 1000,
+        timestamp: new Date().toISOString(),
+        psi: Math.round(psi * 10) / 10,
+        forwardDev: Math.round(forward * 1000) / 1000,
+        lateralDev: Math.round(lateral * 1000) / 1000,
         shoulderDev: Math.round(shoulder * 1000) / 1000,
         zone,
       });
@@ -266,55 +267,55 @@ export function usePostureStream() {
 
   // ── Save completed session to history ─────────────────────────────────────
   const saveSession = useCallback((opts: {
-    durationSec:  number;
-    greenSec:     number;
-    yellowSec:    number;
-    redSec:       number;
-    totalSec:     number;
-    alertCount:   number;
+    durationSec: number;
+    greenSec: number;
+    yellowSec: number;
+    redSec: number;
+    totalSec: number;
+    alertCount: number;
     recalibCount: number;
-    minP:         number;
-    maxP:         number;
-    fatigueFlag:  boolean;
-    psiSlope:     number;
-    sdi:          number;
+    minP: number;
+    maxP: number;
+    fatigueFlag: boolean;
+    psiSlope: number;
+    sdi: number;
   }) => {
     const timeline = psiTimelineRef.current;
-    const meanPsi  = timeline.length > 0
+    const meanPsi = timeline.length > 0
       ? Math.round(timeline.reduce((a, b) => a + b, 0) / timeline.length)
       : 0;
 
-    const total    = opts.totalSec || 1;
-    const greenPct  = Math.round((opts.greenSec  / total) * 100);
+    const total = opts.totalSec || 1;
+    const greenPct = Math.round((opts.greenSec / total) * 100);
     const yellowPct = Math.round((opts.yellowSec / total) * 100);
-    const redPct    = Math.round((opts.redSec    / total) * 100);
-    const accuracy  = greenPct;
+    const redPct = Math.round((opts.redSec / total) * 100);
+    const accuracy = greenPct;
 
     const record: SessionRecord = {
-      id:             `session-${sessionStartRef.current}`,
-      date:           (() => {
-                        const d = new Date(sessionStartRef.current);
-                        return d.toLocaleDateString("en-IN", {
-                          weekday: "short", day: "numeric", month: "short", year: "numeric",
-                        }) + ", " + d.toLocaleTimeString("en-IN", {
-                          hour: "2-digit", minute: "2-digit", hour12: true,
-                        });
-                      })(),
+      id: `session-${sessionStartRef.current}`,
+      date: (() => {
+        const d = new Date(sessionStartRef.current);
+        return d.toLocaleDateString("en-IN", {
+          weekday: "short", day: "numeric", month: "short", year: "numeric",
+        }) + ", " + d.toLocaleTimeString("en-IN", {
+          hour: "2-digit", minute: "2-digit", hour12: true,
+        });
+      })(),
       startTimestamp: sessionStartRef.current,
-      durationSec:    opts.durationSec,
+      durationSec: opts.durationSec,
       meanPsi,
-      minPsi:         opts.minP,
-      maxPsi:         opts.maxP,
+      minPsi: opts.minP,
+      maxPsi: opts.maxP,
       accuracy,
-      alerts:         opts.alertCount,
-      autoRecalibs:   opts.recalibCount,
+      alerts: opts.alertCount,
+      autoRecalibs: opts.recalibCount,
       greenPct,
       yellowPct,
       redPct,
-      psiTimeline:    timeline.slice(-40),
-      fatigueFlag:    opts.fatigueFlag,
-      psiSlope:       opts.psiSlope,
-      sdi:            opts.sdi,
+      psiTimeline: timeline.slice(-40),
+      fatigueFlag: opts.fatigueFlag,
+      psiSlope: opts.psiSlope,
+      sdi: opts.sdi,
     };
 
     setSessionHistory(prev => [record, ...prev].slice(0, 20));
@@ -330,19 +331,19 @@ export function usePostureStream() {
       }
 
       const summary = {
-        durationSec:  opts.durationSec,
+        durationSec: opts.durationSec,
         meanPsi,
-        minPsi:       opts.minP,
-        maxPsi:       opts.maxP,
-        psiSlope:     opts.psiSlope,
-        sdi:          opts.sdi,
-        alerts:       opts.alertCount,
-        fatigueFlag:  opts.fatigueFlag,
+        minPsi: opts.minP,
+        maxPsi: opts.maxP,
+        psiSlope: opts.psiSlope,
+        sdi: opts.sdi,
+        alerts: opts.alertCount,
+        fatigueFlag: opts.fatigueFlag,
         autoRecalibs: opts.recalibCount,
         greenPct,
         yellowPct,
         redPct,
-        psiTimeline:  timeline.slice(-40).map((psi, i) => ({ t: i * 3, psi })),
+        psiTimeline: timeline.slice(-40).map((psi, i) => ({ t: i * 3, psi })),
       };
 
       dbEndSession(sessionId, summary);
@@ -350,15 +351,15 @@ export function usePostureStream() {
         // Refresh weekly chart after session saved
         fetchWeeklySummary(user.id, user.user_metadata?.timezone).then(rows => {
           if (!rows.length) return;
-          const slots = [0, 0, 0, 0, 0, 0, 0];
+          const slots: (number | null)[] = [null,null,null,null,null,null,null];
           const today = new Date();
           rows.forEach(row => {
-            const rowDate  = new Date(row.date);
+            const rowDate = new Date(row.date);
             const diffDays = Math.round(
-              (today.setHours(0,0,0,0) - rowDate.setHours(0,0,0,0)) / 86400000
+              (today.setHours(0, 0, 0, 0) - rowDate.setHours(0, 0, 0, 0)) / 86400000
             );
             const slot = 6 - diffDays;
-            if (slot >= 0 && slot <= 6) slots[slot] = Math.round(row.avg_psi ?? 0);
+            if (slot >= 0 && slot <= 6) slots[slot] = row.avg_psi !== null ? Math.round(row.avg_psi) : null;
           });
           setWeeklyData(slots);
         });
@@ -369,7 +370,7 @@ export function usePostureStream() {
 
   // ── Called on unmount / stop ───────────────────────────────────────────────
   const onStopped = useCallback(() => {
-    if (timerRef.current)       clearInterval(timerRef.current);
+    if (timerRef.current) clearInterval(timerRef.current);
     if (sampleTimerRef.current) clearInterval(sampleTimerRef.current);
     if (dbFlushTimerRef.current) clearInterval(dbFlushTimerRef.current);
     setIsActive(false);
@@ -390,8 +391,8 @@ export function usePostureStream() {
   })();
 
   const stats = [
-    { title: "Today's Duration",  value: durationFormatted },
-    { title: "Posture Accuracy",  value: isCalibrated ? `${accuracy}%` : "--" },
+    { title: "Today's Duration", value: durationFormatted },
+    { title: "Posture Accuracy", value: isCalibrated ? `${accuracy}%` : "--" },
     { title: "Correction Alerts", value: isCalibrated ? alerts.toString() : "--" },
   ];
 

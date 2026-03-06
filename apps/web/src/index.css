@@ -12,6 +12,9 @@
   --bg-glass:      rgba(237, 224, 200, 0.72);
   --bg-card-glass: rgba(250, 242, 225, 0.65);
 
+
+  --chart-line: var(--accent-primary-bright);
+
   --text-primary:   #1A0F04;
   --text-secondary: #2E1E08;
   --text-muted:     #5A3A14;
@@ -79,6 +82,11 @@
   --bg-glass: rgba(6, 10, 7, 0.75);
   --bg-card-glass: rgba(18, 26, 19, 0.6);
 
+
+
+  --chart-line: var(--accent-primary-bright);
+
+  
   --text-primary: #F0F7EE;
   --text-secondary: #D4E8CF;
   --text-muted: #8AAF84;

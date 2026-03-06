@@ -16,63 +16,65 @@ export default function Dashboard() {
   }, []);
 
   // When user hovers a chart dot, ring shows that day's PSI instead of live
-  const [hoveredPsi,   setHoveredPsi]   = useState<number | null>(null);
+  const [hoveredPsi, setHoveredPsi] = useState<number | null>(null);
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
   // Display PSI = hovered day's value OR live value
-  const displayPsi   = hoveredPsi ?? livePsi;
+  const displayPsi = hoveredPsi ?? livePsi;
   // const displayLabel = hoveredLabel ?? (isCalibrated ? "live" : "no session");
+
+  const noSession = (hoveredPsi === null && !isCalibrated) || hoveredPsi === 0 || (!isCalibrated && displayPsi === 0);
 
   // Colours always follow the displayed value
   const psiColor =
-    !isCalibrated && hoveredPsi === null ? "var(--text-muted)"
-    : displayPsi >= 80 ? "var(--accent-primary-bright)"
-    : displayPsi >= 60 ? "var(--accent-gold-bright)"
-    : "var(--accent-danger)";
+    noSession ? "var(--text-muted)"
+      : displayPsi >= 80 ? "var(--accent-primary-bright)"
+        : displayPsi >= 60 ? "var(--accent-gold-bright)"
+          : "var(--accent-danger)";
 
   const psiGlow =
-    !isCalibrated && hoveredPsi === null ? "none"
-    : displayPsi >= 80 ? "var(--shadow-glow-green)"
-    : displayPsi >= 60 ? "var(--shadow-glow-gold)"
-    : "0 0 32px rgba(255,95,82,0.2), 0 4px 20px rgba(0,0,0,0.5)";
+    noSession ? "none"
+      : displayPsi >= 80 ? "var(--shadow-glow-green)"
+        : displayPsi >= 60 ? "var(--shadow-glow-gold)"
+          : "0 0 32px rgba(255,95,82,0.2), 0 4px 20px rgba(0,0,0,0.5)";
 
   const psiLabel =
-    !isCalibrated && hoveredPsi === null ? "NO SESSION"
-    : displayPsi >= 80 ? "EXCELLENT"
-    : displayPsi >= 60 ? "MODERATE"
-    : "POOR";
+    noSession ? "NO SESSION"
+      : displayPsi >= 80 ? "EXCELLENT"
+        : displayPsi >= 60 ? "MODERATE"
+          : "POOR";
 
   const psiBadgeClass =
-    !isCalibrated && hoveredPsi === null ? "badge-moderate"
-    : displayPsi >= 80 ? "badge-excellent"
-    : displayPsi >= 60 ? "badge-moderate"
-    : "badge-poor";
+    noSession ? "badge-moderate"
+      : displayPsi >= 80 ? "badge-excellent"
+        : displayPsi >= 60 ? "badge-moderate"
+          : "badge-poor";
 
   // Insights reflect live session
   const insights = isCalibrated ? [
     {
-      icon:  livePsi >= 80 ? "✓" : livePsi >= 60 ? "~" : "↓",
-      text:  `Current PSI: ${livePsi} — ${livePsi >= 80 ? "Great posture!" : livePsi >= 60 ? "Minor corrections needed" : "Poor posture detected"}`,
+      icon: livePsi >= 80 ? "✓" : livePsi >= 60 ? "~" : "↓",
+      text: `Current PSI: ${livePsi} — ${livePsi >= 80 ? "Great posture!" : livePsi >= 60 ? "Minor corrections needed" : "Poor posture detected"}`,
       color: psiColor,
     },
     {
-      icon:  "⏱",
-      text:  `Session time: ${durationFormatted}`,
+      icon: "⏱",
+      text: `Session time: ${durationFormatted}`,
       color: "var(--accent-secondary)",
     },
     {
-      icon:  "⚡",
-      text:  `${alerts} correction alert${alerts !== 1 ? "s" : ""} this session`,
+      icon: "⚡",
+      text: `${alerts} correction alert${alerts !== 1 ? "s" : ""} this session`,
       color: alerts > 5 ? "var(--accent-danger)" : "#E9A84C",
     },
     {
-      icon:  "✓",
-      text:  `Posture accuracy: ${accuracy}% time in good zone`,
+      icon: "✓",
+      text: `Posture accuracy: ${accuracy}% time in good zone`,
       color: accuracy >= 70 ? "#4CAF82" : "var(--text-muted)",
     },
     {
-      icon:  "↺",
-      text:  `Auto-recalibrations: ${autoRecalibs} this session`,
+      icon: "↺",
+      text: `Auto-recalibrations: ${autoRecalibs} this session`,
       color: autoRecalibs > 0 ? "var(--accent-primary)" : "var(--text-muted)",
     },
   ] : undefined;
@@ -130,7 +132,10 @@ export default function Dashboard() {
               filter: "blur(18px)", pointerEvents: "none", transition: "background 0.3s ease",
             }} />
 
-            <PSIRing value={displayPsi} size={150} />
+            <PSIRing
+              value={noSession ? null : displayPsi}
+              size={150}
+            />
 
             <div className="mt-4 text-center">
               <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.12em] ${psiBadgeClass}`}>

@@ -41,9 +41,9 @@ function MiniSparkline({ values, color }: { values: number[]; color: string }) {
         </linearGradient>
       </defs>
       <path d={area} fill={`url(#sg-${color.replace(/[^a-z0-9]/gi, '')})`} />
-      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <path d={d} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
       <circle cx={pts[pts.length-1].x} cy={pts[pts.length-1].y} r="2.5"
-        fill={color} style={{ filter: `drop-shadow(0 0 3px ${color})` }} />
+        fill={color} style={{ filter: `drop-shadow(0 0 5px ${color})` }} />
     </svg>
   );
 }
@@ -52,7 +52,7 @@ function MiniSparkline({ values, color }: { values: number[]; color: string }) {
 function ZoneBar({ green, yellow, red }: { green: number; yellow: number; red: number }) {
   return (
     <div className="w-full h-2 rounded-full overflow-hidden flex gap-px" style={{ background: "rgba(255,255,255,0.06)" }}>
-      <div style={{ width: `${green}%`,  background: "#4ade80", borderRadius: "9999px 0 0 9999px", transition: "width 0.8s ease" }} />
+      <div style={{ width: `${green}%`,  background: "var(--status-green)", borderRadius: "9999px 0 0 9999px", transition: "width 0.8s ease" }} />
       <div style={{ width: `${yellow}%`, background: "#fbbf24" }} />
       <div style={{ width: `${red}%`,    background: "#ff5f52", borderRadius: "0 9999px 9999px 0", transition: "width 0.8s ease" }} />
     </div>
@@ -62,7 +62,7 @@ function ZoneBar({ green, yellow, red }: { green: number; yellow: number; red: n
 // ── PSI grade chip ────────────────────────────────────────────────────────────
 function PsiChip({ value }: { value: number }) {
   const [color, label] =
-    value >= 80 ? ["#4ade80",  "EXCELLENT"] :
+    value >= 80 ? ["var(--status-green)", "EXCELLENT"] :
     value >= 60 ? ["#fbbf24",  "MODERATE"]  :
                   ["#ff5f52",  "POOR"];
   return (
@@ -86,15 +86,15 @@ function fmtDuration(sec: number) {
 
 // ── Session detail modal ──────────────────────────────────────────────────────
 function SessionModal({ session, onClose }: { session: SessionRecord; onClose: () => void }) {
-  const psiColor = session.meanPsi >= 80 ? "#4ade80" : session.meanPsi >= 60 ? "#fbbf24" : "#ff5f52";
+  const psiColor = session.meanPsi >= 80 ? "var(--status-green)" : session.meanPsi >= 60 ? "#fbbf24" : "#ff5f52";
 
   const metrics = [
     { label: "Mean PSI",           value: session.meanPsi,                    unit: "",   color: psiColor },
-    { label: "Peak PSI",           value: session.maxPsi,                     unit: "",   color: "#4ade80" },
+    { label: "Peak PSI",           value: session.maxPsi,                     unit: "",   color: "var(--status-green)" },
     { label: "Minimum PSI",        value: session.minPsi,                     unit: "",   color: "#ff5f52" },
-    { label: "Accuracy",           value: session.accuracy,                   unit: "%",  color: "#4ade80" },
+    { label: "Accuracy",           value: session.accuracy,                   unit: "%",  color: "var(--status-green)" },
     { label: "Correction Alerts",  value: session.alerts,                     unit: "",   color: "#fbbf24" },
-    { label: "Auto-recalibrations",value: session.autoRecalibs,               unit: "",   color: "#4ade80" },
+    { label: "Auto-recalibrations",value: session.autoRecalibs,               unit: "",   color: "var(--status-green)" },
     { label: "PSI Slope",          value: session.psiSlope.toFixed(4),        unit: "/s", color: session.psiSlope >= 0 ? "#4ade80" : "#fbbf24" },
     { label: "Stability (SDI)",    value: session.sdi.toFixed(1),             unit: "",   color: session.sdi < 5 ? "#4ade80" : session.sdi < 10 ? "#fbbf24" : "#ff5f52" },
   ];
@@ -108,7 +108,7 @@ function SessionModal({ session, onClose }: { session: SessionRecord; onClose: (
       <div
         className="relative w-[520px] max-h-[80vh] overflow-y-auto rounded-3xl"
         style={{
-          background: "var(--bg-secondary)",
+          background: "linear-gradient(180deg, var(--bg-secondary), var(--bg-elevated))",
           border: "1px solid var(--border-medium)",
           boxShadow: `0 0 60px ${psiColor}20, 0 24px 64px rgba(0,0,0,0.6)`,
           padding: "2rem",
@@ -150,7 +150,7 @@ function SessionModal({ session, onClose }: { session: SessionRecord; onClose: (
           <ZoneBar green={session.greenPct} yellow={session.yellowPct} red={session.redPct} />
           <div className="flex justify-between mt-2">
             {[
-              { label: "Good",    pct: session.greenPct,  color: "#4ade80" },
+              { label: "Good",    pct: session.greenPct,  color: "var(--status-green)" },
               { label: "Caution", pct: session.yellowPct, color: "#fbbf24" },
               { label: "Poor",    pct: session.redPct,    color: "#ff5f52" },
             ].map(({ label, pct, color }) => (
@@ -228,7 +228,7 @@ function SessionCard({ session, index, onClick }: { session: SessionRecord; inde
       onClick={onClick}
       className="relative overflow-hidden rounded-2xl cursor-pointer group"
       style={{
-        background: "var(--bg-secondary)",
+        background: "linear-gradient(180deg, var(--bg-secondary), var(--bg-elevated))",
         border: "1px solid var(--border-subtle)",
         padding: "1.25rem 1.5rem",
         animation: `fade-up 0.4s ease ${index * 60}ms both`,
@@ -269,7 +269,7 @@ function SessionCard({ session, index, onClick }: { session: SessionRecord; inde
           {[
             { label: "PSI",      value: session.meanPsi,              unit: "",  color: psiColor },
             { label: "Duration", value: fmtDuration(session.durationSec), unit: "", color: "var(--text-muted)" },
-            { label: "Accuracy", value: session.accuracy,             unit: "%", color: "#4ade80" },
+            { label: "Accuracy", value: session.accuracy,             unit: "%", color: "var(--status-green)" },
             { label: "Alerts",   value: session.alerts,               unit: "",  color: "#fbbf24" },
             { label: "Recalib.", value: session.autoRecalibs,         unit: "",  color: "var(--accent-primary)" },
           ].map(({ label, value, unit, color }) => (
@@ -315,7 +315,7 @@ function LiveBanner() {
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: "var(--bg-secondary)",
+        background: "linear-gradient(180deg, var(--bg-secondary), var(--bg-elevated))",
         border: `1px solid ${psiColor}40`,
         boxShadow: `0 0 32px ${psiColor}15`,
         padding: "1.5rem 2rem",
@@ -325,7 +325,7 @@ function LiveBanner() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-blink" />
-          <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "#4ade80" }}>Live Session</p>
+          <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "var(--status-green)" }}>Live Session</p>
         </div>
         <p className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>{durationFormatted}</p>
       </div>
@@ -343,8 +343,8 @@ function LiveBanner() {
         <div className="grid grid-cols-2 gap-3 col-span-1">
           {[
             { label: "Min PSI",    value: minPsi,       color: "#ff5f52" },
-            { label: "Max PSI",    value: maxPsi,       color: "#4ade80" },
-            { label: "Accuracy",   value: `${accuracy}%`, color: "#4ade80" },
+            { label: "Max PSI",    value: maxPsi,       color: "var(--status-green)" },
+            { label: "Accuracy",   value: `${accuracy}%`, color: "var(--status-green)" },
             { label: "Alerts",     value: alerts,       color: "#fbbf24" },
           ].map(({ label, value, color }) => (
             <div key={label}>
@@ -359,7 +359,7 @@ function LiveBanner() {
           <ZoneBar green={greenPct} yellow={yellowPct} red={redPct} />
           <div className="flex gap-3 mt-1">
             {[
-              { label: "Good",    pct: greenPct,  color: "#4ade80" },
+              { label: "Good",    pct: greenPct,  color: "var(--status-green)" },
               { label: "Caution", pct: yellowPct, color: "#fbbf24" },
               { label: "Poor",    pct: redPct,    color: "#ff5f52" },
             ].map(({ label, pct, color }) => (
@@ -400,7 +400,7 @@ function AggregateRow({ sessions }: { sessions: SessionRecord[] }) {
     { label: "Total Sessions",    value: sessions.length,          unit: "",  color: "var(--accent-primary)" },
     { label: "Total Time",        value: fmtDuration(totalTime),   unit: "",  color: "var(--text-primary)" },
     { label: "Avg PSI",           value: avgPsi,                   unit: "",  color: avgPsi >= 80 ? "#4ade80" : avgPsi >= 60 ? "#fbbf24" : "#ff5f52" },
-    { label: "Avg Accuracy",      value: avgAccuracy,              unit: "%", color: "#4ade80" },
+    { label: "Avg Accuracy",      value: avgAccuracy,              unit: "%", color: "var(--status-green)" },
     { label: "Total Alerts",      value: totalAlerts,              unit: "",  color: "#fbbf24" },
     { label: "Auto-recalibs",     value: totalRecalib,             unit: "",  color: "var(--accent-primary)" },
     { label: "Fatigue Sessions",  value: fatigueCount,             unit: "",  color: "#ff5f52" },
@@ -412,7 +412,7 @@ function AggregateRow({ sessions }: { sessions: SessionRecord[] }) {
         <div key={label}
           className="rounded-2xl flex flex-col gap-1 p-4"
           style={{
-            background: "var(--bg-secondary)",
+            background: "linear-gradient(180deg, var(--bg-secondary), var(--bg-elevated))",
             border: "1px solid var(--border-subtle)",
             animation: `fade-up 0.4s ease ${i * 50}ms both`,
           }}
@@ -492,7 +492,7 @@ export default function Reports() {
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
               style={{ background: "var(--accent-glow)", border: "1px solid var(--border-subtle)" }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)"
-                strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
               </svg>
             </div>

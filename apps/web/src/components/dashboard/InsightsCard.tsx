@@ -6,17 +6,17 @@ type InsightItem = {
 
 type InsightsCardProps = {
   insights?: InsightItem[];
-  barValues?: number[];
+  barValues?: (number | null)[];
 };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-function deriveWeeklyInsights(bars: number[]): InsightItem[] {
-  const hasData = bars.some(v => v > 0);
+function deriveWeeklyInsights(bars: (number | null)[]): InsightItem[] {
+  const hasData = bars.some(v => v !== null && v > 0);
   if (!hasData) return [];
 
   const items: InsightItem[] = [];
-  const nonZero = bars.filter(v => v > 0);
+  const nonZero = bars.filter((v): v is number => v !== null && v > 0);
   const avg = Math.round(nonZero.reduce((a, b) => a + b, 0) / nonZero.length);
 
   items.push({
@@ -25,7 +25,8 @@ function deriveWeeklyInsights(bars: number[]): InsightItem[] {
     color: avg >= 80 ? "#4CAF82" : avg >= 60 ? "#E9A84C" : "var(--accent-danger)",
   });
 
-  const bestVal = Math.max(...bars);
+  const numericBars = bars.filter((v): v is number => v !== null);
+  const bestVal = numericBars.length ? Math.max(...numericBars) : 0;
   const bestIdx = bars.lastIndexOf(bestVal);
   if (bestVal > 0) {
     const today = new Date();
@@ -39,7 +40,8 @@ function deriveWeeklyInsights(bars: number[]): InsightItem[] {
 
   let streak = 0;
   for (let i = bars.length - 1; i >= 0; i--) {
-    if (bars[i] > 0) streak++;
+    const v = bars[i];
+    if (v !== null && v > 0) streak++;
     else break;
   }
   if (streak > 1) {
@@ -50,8 +52,8 @@ function deriveWeeklyInsights(bars: number[]): InsightItem[] {
     });
   }
 
-  const firstHalf  = bars.slice(0, 3).filter(v => v > 0);
-  const secondHalf = bars.slice(4).filter(v => v > 0);
+  const firstHalf = bars.slice(0, 3).filter((v): v is number => v !== null && v > 0)
+  const secondHalf = bars.slice(4).filter((v): v is number => v !== null && v > 0)
   if (firstHalf.length && secondHalf.length) {
     const diff = Math.round(
       secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length -
@@ -71,9 +73,9 @@ function deriveWeeklyInsights(bars: number[]): InsightItem[] {
 
 export default function InsightsCard({
   insights,
-  barValues = [0, 0, 0, 0, 0, 0, 0],
+  barValues = [null, null, null, null, null, null, null]
 }: InsightsCardProps) {
-  const safeBars = barValues.map((v) => Math.max(0, Math.min(100, v)));
+  const safeBars = barValues.map((v) => v === null ? 0 : Math.max(0, Math.min(100, v)));
   const latestIndex = safeBars.length - 1;
   const hasData = safeBars.some(v => v > 0);
 
@@ -130,7 +132,7 @@ export default function InsightsCard({
             }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="var(--text-faint)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
               </svg>
             </div>
             <div>
@@ -156,8 +158,8 @@ export default function InsightsCard({
               background: i === latestIndex && value > 0
                 ? "var(--accent-primary)"
                 : value > 0
-                ? "var(--border-medium)"
-                : "var(--border-subtle)",
+                  ? "var(--border-medium)"
+                  : "var(--border-subtle)",
               opacity: value > 0 ? 1 : 0.4,
             }}
           />
