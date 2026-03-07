@@ -49,7 +49,7 @@ export function usePostureStream() {
     if (!user) {
       // User logged out or entered guest mode — wipe all persisted data
       setSessionHistory([]);
-      setWeeklyData([0, 0, 0, 0, 0, 0, 0]);
+      setWeeklyData([null, null, null, null, null, null, null]);
       return;
     }
 
@@ -313,6 +313,19 @@ export function usePostureStream() {
     };
 
     setSessionHistory(prev => [record, ...prev].slice(0, 20));
+
+    // ── Guest mode: update today's chart dot with true session average ────────
+    if (!user && meanPsi > 0) {
+      const allSessions = [record, ...sessionHistory];
+      const avg = Math.round(
+        allSessions.reduce((a, s) => a + s.meanPsi, 0) / allSessions.length
+      );
+      setWeeklyData(prev => {
+        const next = [...prev];
+        next[6] = avg;
+        return next;
+      });
+    }
 
     // ── Flush remaining samples + persist to Supabase ──────────────────────
     if (user && dbSessionIdRef.current) {

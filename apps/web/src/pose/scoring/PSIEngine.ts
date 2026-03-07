@@ -29,6 +29,12 @@ export class PSIEngine {
   private red_episodes: number[] = [];
   private recovery_times: number[] = [];
 
+  // ---- PSI stability window (last 10 outputs) ----
+  private psi_history: number[] = [];
+  private psi_stability_window = 10;
+  private psi_stability_cap = 150;   // variance cap for normalization
+  private w_psi_stability = 0.10;    // weight — kept modest, doesn't override quality
+
   private in_red_episode = false;
   private current_red_start: number | null = null;
 
@@ -69,7 +75,19 @@ export class PSIEngine {
       psi_raw = Math.min(psi_raw + 0.02, 1.0);
     }
 
-    return Math.max(0, psi_raw) * 100;
+    const psi_out = Math.max(0, psi_raw) * 100;
+
+    // ── PSI-level stability penalty ────────────────────────────────────────
+    // Penalizes erratic PSI output (high variance = unstable posture over time)
+    this.psi_history.push(psi_out);
+    if (this.psi_history.length > this.psi_stability_window) {
+      this.psi_history.shift();
+    }
+
+    const psi_stability_penalty = this.computePsiStability();
+    const final_psi = Math.max(0, Math.min(100, psi_out - psi_stability_penalty));
+
+    return final_psi;
   }
 
   // =====================================================
@@ -184,6 +202,18 @@ export class PSIEngine {
       this.recovery_times.length;
 
     return Math.min(avg / this.recovery_cap, 1.0);
+  }
+
+  // =====================================================
+
+  private computePsiStability(): number {
+    if (this.psi_history.length < 5) return 0;
+
+    const mean = this.psi_history.reduce((a, b) => a + b, 0) / this.psi_history.length;
+    const variance = this.psi_history.reduce((a, v) => a + (v - mean) ** 2, 0) / this.psi_history.length;
+
+    // Normalize and apply weight — max penalty ~15 PSI points at full variance
+    return Math.min(variance / this.psi_stability_cap, 1.0) * this.w_psi_stability * 100;
   }
 
   // =====================================================
