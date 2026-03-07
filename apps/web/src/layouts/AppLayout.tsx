@@ -65,8 +65,8 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
   const { user, signOut } = useAuth();
   const collapsed = false;
 
-  const userName   = user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "Guest";
-  const userEmail  = user?.email ?? "guest mode";
+  const userName = user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "Guest";
+  const userEmail = user?.email ?? "guest mode";
   const userAvatar = user?.user_metadata?.avatar_url ?? null;
 
   return (
@@ -105,13 +105,16 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
           {!collapsed && (
             <div className="overflow-hidden">
               <p
-                className="font-semibold text-sm tracking-tight whitespace-nowrap leading-tight"
-                style={{ fontFamily: "'DM Serif Display', serif" }}
+                className="font-semibold text-[18px] whitespace-nowrap leading-none"
+                style={{
+                  fontFamily: "'DM Serif Display', serif",
+                  letterSpacing: "0.3px"
+                }}
               >
-                PosturePlus
+                Posture+
               </p>
-              <p className="text-[9px] tracking-widest uppercase whitespace-nowrap" style={{ color: "var(--text-faint)" }}>
-                Bio Monitor
+              <p className="text-[10px] tracking-widest uppercase whitespace-nowrap" style={{ color: "var(--text-faint)" }}>
+                AI POSTURE MONITORING
               </p>
             </div>
           )}
@@ -134,9 +137,8 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
               <button
                 key={item.key}
                 onClick={() => onTabChange?.(item.key)}
-                className={`group relative flex items-center gap-3 w-full rounded-xl text-sm font-medium transition-all duration-200 ${
-                  collapsed ? "justify-center px-0 py-3" : "px-3 py-2.5"
-                }`}
+                className={`group relative flex items-center gap-3 w-full rounded-xl text-sm font-medium transition-all duration-200 ${collapsed ? "justify-center px-0 py-3" : "px-3 py-2.5"
+                  }`}
                 style={{
                   background: isActive ? "var(--accent-primary)" : "transparent",
                   color: isActive ? "var(--text-on-accent)" : "var(--text-muted)",
@@ -266,9 +268,9 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
               style={{
                 background: "var(--accent-glow)",
                 color: !isCalibrated ? "var(--text-muted)"
-                  : zone === "GREEN"  ? "var(--accent-primary)"
-                  : zone === "YELLOW" ? "var(--accent-gold-bright)"
-                  : "var(--accent-danger)",
+                  : zone === "GREEN" ? "var(--accent-primary)"
+                    : zone === "YELLOW" ? "var(--accent-gold-bright)"
+                      : "var(--accent-danger)",
                 border: "1px solid var(--border-medium)",
               }}
             >
@@ -276,9 +278,9 @@ export default function AppLayout({ children, activeTab = "dashboard", onTabChan
                 className={`w-1.5 h-1.5 rounded-full ${isCalibrated ? "animate-blink" : ""}`}
                 style={{
                   background: !isCalibrated ? "var(--text-faint)"
-                    : zone === "GREEN"  ? "#4ade80"
-                    : zone === "YELLOW" ? "var(--accent-gold-bright)"
-                    : "var(--accent-danger)"
+                    : zone === "GREEN" ? "#4ade80"
+                      : zone === "YELLOW" ? "var(--accent-gold-bright)"
+                        : "var(--accent-danger)"
                 }}
               />
               {isCalibrated ? `PSI: ${Math.round(psi)}` : "PSI: --"}

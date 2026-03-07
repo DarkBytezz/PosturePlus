@@ -59,13 +59,11 @@ export function usePostureStream() {
 
       // Build 7-slot array — today is slot 6, 6 days ago is slot 0
       const slots: (number | null)[] = [null, null, null, null, null, null, null];
-      const today = new Date();
+      const todayMs = new Date().setHours(0, 0, 0, 0);
 
       rows.forEach(row => {
-        const rowDate = new Date(row.date);
-        const diffDays = Math.round(
-          (today.setHours(0, 0, 0, 0) - rowDate.setHours(0, 0, 0, 0)) / 86400000
-        );
+        const rowMs = new Date(row.date).setHours(0, 0, 0, 0);
+        const diffDays = Math.round((todayMs - rowMs) / 86400000);
         const slot = 6 - diffDays;
         if (slot >= 0 && slot <= 6) slots[slot] = row.avg_psi !== null ? Math.round(row.avg_psi) : null;
       });
@@ -229,11 +227,7 @@ export function usePostureStream() {
         return next.length > 120 ? next.slice(-120) : next;
       });
 
-      setWeeklyData(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = snap;
-        return updated;
-      });
+      // weeklyData is DB-only; updated on session end via fetchWeeklySummary
     }, 3000);
 
     // ── DB sample buffer — collect every 5s then flush ─────────────────────
@@ -352,12 +346,10 @@ export function usePostureStream() {
         fetchWeeklySummary(user.id, user.user_metadata?.timezone).then(rows => {
           if (!rows.length) return;
           const slots: (number | null)[] = [null,null,null,null,null,null,null];
-          const today = new Date();
+          const todayMs = new Date().setHours(0, 0, 0, 0);
           rows.forEach(row => {
-            const rowDate = new Date(row.date);
-            const diffDays = Math.round(
-              (today.setHours(0, 0, 0, 0) - rowDate.setHours(0, 0, 0, 0)) / 86400000
-            );
+            const rowMs = new Date(row.date).setHours(0, 0, 0, 0);
+            const diffDays = Math.round((todayMs - rowMs) / 86400000);
             const slot = 6 - diffDays;
             if (slot >= 0 && slot <= 6) slots[slot] = row.avg_psi !== null ? Math.round(row.avg_psi) : null;
           });
