@@ -10,6 +10,7 @@ import { PostureInsights } from "../pose/insights/PostureInsights";
 import type { InsightMessage } from "../pose/insights/PostureInsights";
 import { useEffect, useRef, useCallback, useState } from "react";
 import { usePosture } from "../context/PostureContext";
+import { usePopupBroadcast } from "../hooks/usePopupBroadcast";
 
 export default function Monitor() {
   const {
@@ -22,6 +23,7 @@ export default function Monitor() {
   const engineRef       = useRef<PostureEngine | null>(null);
   const alertsRef       = useRef<PostureAlerts>(new PostureAlerts());
   const insightsRef     = useRef<PostureInsights>(new PostureInsights());
+  const { openPopup, broadcast, broadcastSessionEnd } = usePopupBroadcast();
   const wasCalibratedRef = useRef(false);
 
   // ── Countdown state ────────────────────────────────────────────────────────
@@ -82,6 +84,18 @@ export default function Monitor() {
   // ── Request notification permission on mount ──────────────────────────────
   useEffect(() => {
     PostureAlerts.requestPermission();
+
+    // ── Play catch-up beep when user returns to tab during RED ───────────────
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        const streak = alertsRef.current.getRedStreakMs();
+        if (streak > 0) {
+          alertsRef.current.triggerVisibilityBeep();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
   // ── Stop engine + save session on unmount ─────────────────────────────────
@@ -128,6 +142,21 @@ export default function Monitor() {
     setAlertActive(fired && alertSettings.enableVisualFlash);
     setRedStreakSec(Math.floor(streak / 1000));
     if (fired) setTimeout(() => setAlertActive(false), 2000);
+
+    // ── Broadcast to popup window ────────────────────────────────────────────
+    const latestInsight = insightsRef.current.compute()[0];
+    broadcast({
+      psi:            data.psi,
+      zone:           data.zone,
+      forward_dev:    data.forward_dev,
+      lateral_dev:    data.lateral_dev,
+      shoulder_dev:   data.shoulder_dev,
+      isCalibrated:   true,
+      duration:       durationFormatted,
+      alertFired:     fired,
+      alertEscalated: streak >= alertSettings.escalateAfterSec * 1000,
+      insight:        latestInsight,
+    });
 
     // ── Heatmap: EMA accumulate severity per axis ───────────────────────────
     const alpha = 0.02;  // slow decay — shows 60s pattern
@@ -182,7 +211,9 @@ export default function Monitor() {
     heatmapRef.current = { forward: 0, lateral: 0, shoulder: 0 };
     setHeatmap({ forward: 0, lateral: 0, shoulder: 0 });
     insightsRef.current = new PostureInsights();
+    alertsRef.current.destroy();
     alertsRef.current   = new PostureAlerts();
+    broadcastSessionEnd();
 
     // 3..2..1 countdown, then 5s calibration
     let count = 3;
@@ -355,6 +386,24 @@ export default function Monitor() {
               />
             )}
           </div>
+
+          {/* ── Popup window button ─────────────────────────────────────── */}
+          <button
+            onClick={openPopup}
+            title="Open floating monitor — stays visible when you switch tabs"
+            className="h-full px-3 rounded-xl text-xs font-medium transition-all duration-200 flex items-center gap-1.5"
+            style={{
+              background: "var(--bg-elevated)",
+              color: "var(--text-muted)",
+              border: "1px solid var(--border-subtle)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 9h6"/>
+            </svg>
+            Float
+          </button>
 
         </div>
 

@@ -26,16 +26,37 @@ export class PostureAlerts {
   private alertCount       = 0;
   private audioCtx:        AudioContext | null = null;
 
+  // ── Background heartbeat — keeps ticking even when tab is hidden ──────────
+  private heartbeatTimer:  ReturnType<typeof setInterval> | null = null;
+  private lastKnownZone:   "GREEN" | "YELLOW" | "RED" = "GREEN";
+
   constructor(settings: AlertSettings = DEFAULT_ALERT_SETTINGS) {
     this.settings = { ...settings };
+    this._startHeartbeat();
   }
 
   updateSettings(s: Partial<AlertSettings>) {
     this.settings = { ...this.settings, ...s };
   }
 
+  destroy() {
+    if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = null;
+  }
+
+  private _startHeartbeat() {
+    // Tick every 1s regardless of tab visibility
+    // This ensures alerts fire even when requestAnimationFrame is throttled
+    this.heartbeatTimer = setInterval(() => {
+      if (this.lastKnownZone === "RED" && document.visibilityState !== "visible") {
+        this.update(this.lastKnownZone);
+      }
+    }, 1000);
+  }
+
   update(zone: "GREEN" | "YELLOW" | "RED"): boolean {
     const now = Date.now();
+    this.lastKnownZone = zone;
 
     if (zone !== "RED") {
       this.redStartTime  = null;
@@ -76,11 +97,25 @@ export class PostureAlerts {
     return Date.now() - this.redStartTime;
   }
 
+  // Called when tab becomes visible — immediate beep if still in RED
+  triggerVisibilityBeep() {
+    if (this.lastKnownZone !== "RED" || !this.settings.enableSound) return;
+    const streak = this.getRedStreakMs();
+    const escalated = streak >= this.settings.escalateAfterSec * 1000;
+    this._playBeep(escalated);
+  }
+
   private _fire(redDurationMs: number) {
     const escalated = redDurationMs >= this.settings.escalateAfterSec * 1000;
-    if (this.settings.enableSound) this._playBeep(escalated);
-    // notification only when user is on another tab
-    if (this.settings.enableNotification && document.visibilityState !== "visible") {
+    const isHidden  = document.visibilityState !== "visible";
+
+    // Sound: only when tab is visible (browsers block audio on hidden tabs)
+    if (this.settings.enableSound && !isHidden) {
+      this._playBeep(escalated);
+    }
+
+    // Notification: only when tab is hidden (no point notifying visible user)
+    if (this.settings.enableNotification && isHidden) {
       this._sendNotification(escalated, Math.floor(redDurationMs / 1000));
     }
   }

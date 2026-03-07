@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Posture+ Live</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sora', sans-serif; }
+
+    :root {
+      --bg:       #060A07;
+      --bg2:      #0A0F0B;
+      --bg3:      #0F1610;
+      --green:    #3DDB82;
+      --gold:     #F8D060;
+      --red:      #FF5F52;
+      --muted:    #8AAF84;
+      --faint:    #5A7A54;
+      --border:   rgba(255,255,255,0.07);
+      --border-g: rgba(61,219,130,0.2);
+    }
+
+    html, body {
+      width: 320px;
+      height: 100%;
+      background: var(--bg);
+      color: #F0F7EE;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 14px;
+      gap: 10px;
+    }
+
+    /* ── Header ── */
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    #logo-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: blink 1.8s ease-in-out infinite;
+    }
+
+    #logo-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 13px;
+      color: #F0F7EE;
+      letter-spacing: 0.01em;
+    }
+
+    #status-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 3px 10px;
+      border-radius: 100px;
+      transition: all 0.3s ease;
+    }
+
+    .badge-green  { background: rgba(61,219,130,0.12); color: var(--green); border: 1px solid rgba(61,219,130,0.25); }
+    .badge-yellow { background: rgba(248,208,96,0.12);  color: var(--gold);  border: 1px solid rgba(248,208,96,0.25); }
+    .badge-red    { background: rgba(255,95,82,0.14);   color: var(--red);   border: 1px solid rgba(255,95,82,0.28); }
+    .badge-none   { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
+
+    /* ── PSI Ring ── */
+    #ring-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 0 6px;
+    }
+
+    #ring-wrap {
+      position: relative;
+      width: 110px; height: 110px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #ring-glow {
+      position: absolute;
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      filter: blur(16px);
+      transition: background 0.4s ease;
+      pointer-events: none;
+    }
+
+    #ring-svg { transform: rotate(-90deg); position: relative; z-index: 1; }
+
+    #ring-center {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      z-index: 2;
+    }
+
+    #psi-value {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      line-height: 1;
+      transition: color 0.3s ease;
+    }
+
+    #psi-label {
+      font-size: 7px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-top: 2px;
+    }
+
+    #ring-sublabel {
+      font-size: 9px;
+      color: var(--faint);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(61,219,130,0.15), transparent);
+      flex-shrink: 0;
+    }
+
+    /* ── Deviation bars ── */
+    #devs {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .dev-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dev-label {
+      font-size: 8.5px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      width: 52px;
+      flex-shrink: 0;
+    }
+
+    .dev-track {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .dev-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    .dev-val {
+      font-size: 8.5px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      width: 30px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Insight ── */
+    #insight-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 11px;
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #insight-icon { font-size: 13px; flex-shrink: 0; }
+
+    #insight-text {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* ── Footer ── */
+    #footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 2px;
+    }
+
+    #session-time {
+      font-size: 9px;
+      font-family: 'DM Mono', monospace;
+      color: var(--faint);
+    }
+
+    #alert-btn {
+      font-size: 9px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255,95,82,0.12);
+      border: 1px solid rgba(255,95,82,0.22);
+      color: var(--red);
+      cursor: pointer;
+      display: none;
+      animation: flash-btn 0.6s ease-in-out 3;
+    }
+
+    /* ── No session state ── */
+    #no-session {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 8px;
+      text-align: center;
+    }
+
+    #no-session-icon { font-size: 28px; opacity: 0.35; }
+    #no-session-text { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Animations ── */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.25; }
+    }
+
+    @keyframes flash-bg {
+      0%, 100% { background: var(--bg); }
+      50% { background: rgba(255,95,82,0.08); }
+    }
+
+    @keyframes flash-btn {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .alert-flash {
+      animation: flash-bg 0.5s ease-in-out 3;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div id="logo">
+      <div id="logo-dot"></div>
+      <span id="logo-text">Posture+</span>
+    </div>
+    <span id="status-badge" class="badge-none">NO SESSION</span>
+  </div>
+
+  <!-- No session placeholder -->
+  <div id="no-session">
+    <div id="no-session-icon">🪑</div>
+    <div id="no-session-text">Start a session in the<br/>Posture+ tab to begin monitoring</div>
+  </div>
+
+  <!-- Live content -->
+  <div id="live-content" style="display:flex; flex-direction:column; gap:10px; flex:1;">
+    <!-- PSI Ring -->
+    <div id="ring-section">
+      <div id="ring-wrap">
+        <div id="ring-glow"></div>
+        <svg id="ring-svg" width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="47" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+          <circle id="ring-arc" cx="55" cy="55" r="47" fill="none" stroke="#3DDB82"
+            stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="295.31" stroke-dashoffset="295.31"
+            style="transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1), stroke 0.4s ease;
+                   filter: drop-shadow(0 0 5px #3DDB8288)"/>
+        </svg>
+        <div id="ring-center">
+          <span id="psi-value" style="color:#3DDB82">—</span>
+          <span id="psi-label">PSI Score</span>
+        </div>
+      </div>
+      <span id="ring-sublabel">● live</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Deviation bars -->
+    <div id="devs">
+      <div class="dev-row">
+        <span class="dev-label">Forward</span>
+        <div class="dev-track"><div id="bar-fwd" class="dev-fill" style="width:0%;background:#3DDB82"></div></div>
+        <span id="val-fwd" class="dev-val">0.00</span>
+      </div>
+      <div class="dev-row">
+        <span class="dev-label">Lateral</span>
+        <div class="dev-track"><div id="bar-lat" class="dev-fill" style="width:0%;background:#3DDB82"></div></div>
+        <span id="val-lat" class="dev-val">0.00</span>
+      </div>
+      <div class="dev-row">
+        <span class="dev-label">Shoulder</span>
+        <div class="dev-track"><div id="bar-shl" class="dev-fill" style="width:0%;background:#3DDB82"></div></div>
+        <span id="val-shl" class="dev-val">0.00</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Insight -->
+    <div id="insight-box">
+      <span id="insight-icon">⏳</span>
+      <span id="insight-text">Gathering posture data…</span>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+      <span id="session-time">—</span>
+      <button id="alert-btn">⚠ Bad posture!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const circumference = 2 * Math.PI * 47; // 295.31
+
+  const arc       = document.getElementById('ring-arc');
+  const psiVal    = document.getElementById('psi-value');
+  const badge     = document.getElementById('status-badge');
+  const ringGlow  = document.getElementById('ring-glow');
+  const sublabel  = document.getElementById('ring-sublabel');
+  const sessionTm = document.getElementById('session-time');
+  const alertBtn  = document.getElementById('alert-btn');
+  const noSession = document.getElementById('no-session');
+  const liveContent = document.getElementById('live-content');
+  const insightIcon = document.getElementById('insight-icon');
+  const insightText = document.getElementById('insight-text');
+
+  // Audio context for beeps — lives in this popup so always audible
+  let audioCtx = null;
+
+  function playBeep(escalated) {
+    try {
+      if (!audioCtx) audioCtx = new AudioContext();
+      const ctx   = audioCtx;
+      const beeps = escalated ? 3 : 2;
+      const freq  = escalated ? 660 : 520;
+      const gap   = escalated ? 0.08 : 0.12;
+      const vol   = escalated ? 0.18 : 0.12;
+      for (let i = 0; i < beeps; i++) {
+        const t    = ctx.currentTime + i * (0.12 + gap);
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(vol, t + 0.02);
+        gain.gain.linearRampToValueAtTime(0,   t + 0.10);
+        osc.start(t);
+        osc.stop(t + 0.12);
+      }
+    } catch(e) {}
+  }
+
+  function zoneColor(zone) {
+    if (zone === 'RED')    return '#FF5F52';
+    if (zone === 'YELLOW') return '#F8D060';
+    return '#3DDB82';
+  }
+
+  function devColor(abs) {
+    if (abs > 0.12) return '#FF5F52';
+    if (abs > 0.06) return '#F8D060';
+    return '#3DDB82';
+  }
+
+  function updateBar(barId, valId, value) {
+    const abs  = Math.abs(value);
+    const pct  = Math.min(abs / 0.18, 1) * 100;
+    const col  = devColor(abs);
+    document.getElementById(barId).style.width     = pct + '%';
+    document.getElementById(barId).style.background = col;
+    document.getElementById(valId).textContent     = value.toFixed(2);
+  }
+
+  let hasSession = false;
+
+  function applyData(d) {
+    // Show live content
+    if (!hasSession) {
+      hasSession = true;
+      noSession.style.display    = 'none';
+      liveContent.style.display  = 'flex';
+    }
+
+    const col = zoneColor(d.zone);
+
+    // Ring
+    const safeP = Math.max(0, Math.min(100, d.psi));
+    const offset = circumference - (safeP / 100) * circumference;
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke           = col;
+    arc.style.filter           = `drop-shadow(0 0 5px ${col}88)`;
+    psiVal.textContent         = Math.round(safeP);
+    psiVal.style.color         = col;
+    ringGlow.style.background  = `radial-gradient(circle, ${col}30 0%, transparent 70%)`;
+
+    // Badge
+    badge.textContent  = d.zone;
+    badge.className    = 'badge-' + d.zone.toLowerCase();
+
+    // Sublabel
+    sublabel.textContent = d.isCalibrated ? '● live' : 'posture score';
+
+    // Bars
+    updateBar('bar-fwd', 'val-fwd', d.forward_dev);
+    updateBar('bar-lat', 'val-lat', d.lateral_dev);
+    updateBar('bar-shl', 'val-shl', d.shoulder_dev);
+
+    // Session time
+    sessionTm.textContent = d.duration || '—';
+
+    // Insight
+    if (d.insight) {
+      insightIcon.textContent = d.insight.icon;
+      insightText.textContent = d.insight.text;
+    }
+
+    // Alert
+    if (d.alertFired) {
+      playBeep(d.alertEscalated || false);
+      document.body.classList.remove('alert-flash');
+      void document.body.offsetWidth; // reflow
+      document.body.classList.add('alert-flash');
+      alertBtn.style.display = 'block';
+      setTimeout(() => { alertBtn.style.display = 'none'; }, 4000);
+    }
+  }
+
+  // ── BroadcastChannel — receive data from main tab ────────────────────────
+  const ch = new BroadcastChannel('postureplus-live');
+  ch.onmessage = (e) => {
+    if (e.data?.type === 'LIVE_DATA') applyData(e.data.payload);
+    if (e.data?.type === 'SESSION_ENDED') {
+      hasSession = false;
+      noSession.style.display   = 'flex';
+      liveContent.style.display = 'none';
+      badge.textContent = 'NO SESSION';
+      badge.className   = 'badge-none';
+    }
+  };
+
+  // Show no-session state initially
+  noSession.style.display   = 'flex';
+  liveContent.style.display = 'none';
+
+  window.addEventListener('beforeunload', () => ch.close());
+</script>
+</body>
+</html>
