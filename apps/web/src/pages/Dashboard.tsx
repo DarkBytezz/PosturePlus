@@ -19,11 +19,25 @@ export default function Dashboard() {
   const [hoveredPsi, setHoveredPsi] = useState<number | null>(null);
   const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
 
-  // Display PSI = hovered day's value OR live value
-  const displayPsi = hoveredPsi ?? livePsi;
-  // const displayLabel = hoveredLabel ?? (isCalibrated ? "live" : "no session");
+  // Today's stored daily average from DB (weeklyData slot 6)
+  const todayAvgPsi = (weeklyData[6] != null && (weeklyData[6] as number) > 0)
+    ? (weeklyData[6] as number)
+    : null;
 
-  const noSession = (hoveredPsi === null && !isCalibrated) || hoveredPsi === 0 || (!isCalibrated && displayPsi === 0);
+  // Ring display priority:
+  // 1. Hovering a chart day → that day's avg
+  // 2. Live session running → live PSI
+  // 3. No session, has today's avg → today's avg
+  // 4. Nothing → no session
+  const displayPsi =
+    hoveredPsi !== null ? hoveredPsi
+    : isCalibrated      ? livePsi
+    : todayAvgPsi       ?? 0;
+
+  const isHoveringNullDay = hoveredPsi === 0;
+  const noSession =
+    isHoveringNullDay ||
+    (hoveredPsi === null && !isCalibrated && todayAvgPsi === null);
 
   // Colours always follow the displayed value
   const psiColor =
@@ -148,7 +162,13 @@ export default function Dashboard() {
 
               {/* Sub-label: shows day name when hovering, "live" otherwise */}
               <p className="text-[10px] mt-1.5 font-mono" style={{ color: "var(--text-faint)" }}>
-                {hoveredPsi !== null ? hoveredLabel : isCalibrated ? "● live" : "posture score"}
+                {hoveredPsi !== null
+                  ? hoveredLabel
+                  : isCalibrated
+                    ? "● live"
+                    : todayAvgPsi !== null
+                      ? "today's avg"
+                      : "posture score"}
               </p>
             </div>
           </div>
