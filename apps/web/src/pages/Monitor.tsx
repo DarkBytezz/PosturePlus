@@ -6,11 +6,9 @@ import { useState } from "react";
 import { usePosture } from "../context/PostureContext";
 
 export default function Monitor() {
-  const {
-    psi, zone, isCalibrated, psiHistory, durationFormatted,
-    accuracy, alerts, autoRecalibs,
-    greenSeconds, yellowSeconds, redSeconds, totalSeconds, sessionSeconds,
-    minPsi, maxPsi,
+const {
+    zone, isCalibrated, psiHistory, durationFormatted,
+    accuracy,
     engineStatus, startEngine, stopEngine, triggerCalibration,
     canvasRef, camGranted,
     devs, heatmap, displayPsi, alertActive, redStreakSec, recentRecalib,
