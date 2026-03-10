@@ -53,8 +53,8 @@ function ZoneBar({ green, yellow, red }: { green: number; yellow: number; red: n
   return (
     <div className="w-full h-2 rounded-full overflow-hidden flex gap-px" style={{ background: "rgba(255,255,255,0.06)" }}>
       <div style={{ width: `${green}%`,  background: "var(--status-green)", borderRadius: "9999px 0 0 9999px", transition: "width 0.8s ease" }} />
-      <div style={{ width: `${yellow}%`, background: "#fbbf24" }} />
-      <div style={{ width: `${red}%`,    background: "#ff5f52", borderRadius: "0 9999px 9999px 0", transition: "width 0.8s ease" }} />
+      <div style={{ width: `${yellow}%`, background: "var(--chart-caution)" }} />
+      <div style={{ width: `${red}%`,    background: "var(--chart-poor)", borderRadius: "0 9999px 9999px 0", transition: "width 0.8s ease" }} />
     </div>
   );
 }
@@ -63,8 +63,8 @@ function ZoneBar({ green, yellow, red }: { green: number; yellow: number; red: n
 function PsiChip({ value }: { value: number }) {
   const [color, label] =
     value >= 80 ? ["var(--status-green)", "EXCELLENT"] :
-    value >= 60 ? ["#fbbf24",  "MODERATE"]  :
-                  ["#ff5f52",  "POOR"];
+    value >= 60 ? ["var(--chart-caution)",  "MODERATE"]  :
+                  ["var(--chart-poor)",  "POOR"];
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold tracking-widest"
       style={{ background: `${color}18`, color, border: `1px solid ${color}35` }}>
@@ -86,17 +86,17 @@ function fmtDuration(sec: number) {
 
 // ── Session detail modal ──────────────────────────────────────────────────────
 function SessionModal({ session, onClose }: { session: SessionRecord; onClose: () => void }) {
-  const psiColor = session.meanPsi >= 80 ? "var(--status-green)" : session.meanPsi >= 60 ? "#fbbf24" : "#ff5f52";
+  const psiColor = session.meanPsi >= 80 ? "var(--status-green)" : session.meanPsi >= 60 ? "var(--chart-caution)" : "var(--chart-poor)";
 
   const metrics = [
     { label: "Mean PSI",           value: session.meanPsi,                    unit: "",   color: psiColor },
     { label: "Peak PSI",           value: session.maxPsi,                     unit: "",   color: "var(--status-green)" },
-    { label: "Minimum PSI",        value: session.minPsi,                     unit: "",   color: "#ff5f52" },
+    { label: "Minimum PSI",        value: session.minPsi,                     unit: "",   color: "var(--chart-poor)" },
     { label: "Accuracy",           value: session.accuracy,                   unit: "%",  color: "var(--status-green)" },
-    { label: "Correction Alerts",  value: session.alerts,                     unit: "",   color: "#fbbf24" },
+    { label: "Correction Alerts",  value: session.alerts,                     unit: "",   color: "var(--chart-caution)" },
     { label: "Auto-recalibrations",value: session.autoRecalibs,               unit: "",   color: "var(--status-green)" },
-    { label: "PSI Slope",          value: session.psiSlope.toFixed(4),        unit: "/s", color: session.psiSlope >= 0 ? "#4ade80" : "#fbbf24" },
-    { label: "Stability (SDI)",    value: session.sdi.toFixed(1),             unit: "",   color: session.sdi < 5 ? "#4ade80" : session.sdi < 10 ? "#fbbf24" : "#ff5f52" },
+    { label: "PSI Slope",          value: session.psiSlope.toFixed(4),        unit: "/s", color: session.psiSlope >= 0 ? "var(--chart-good)" : "var(--chart-caution)" },
+    { label: "Stability (SDI)",    value: session.sdi.toFixed(1),             unit: "",   color: session.sdi < 5 ? "var(--chart-good)" : session.sdi < 10 ? "var(--chart-caution)" : "var(--chart-poor)" },
   ];
 
   return (
@@ -128,7 +128,7 @@ function SessionModal({ session, onClose }: { session: SessionRecord; onClose: (
               <PsiChip value={session.meanPsi} />
               {session.fatigueFlag && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold"
-                  style={{ background: "rgba(255,95,82,0.12)", color: "#ff5f52", border: "1px solid rgba(255,95,82,0.25)" }}>
+                  style={{ background: "rgba(255,95,82,0.12)", color: "var(--chart-poor)", border: "1px solid rgba(255,95,82,0.25)" }}>
                   ⚡ FATIGUE DETECTED
                 </span>
               )}
@@ -151,8 +151,8 @@ function SessionModal({ session, onClose }: { session: SessionRecord; onClose: (
           <div className="flex justify-between mt-2">
             {[
               { label: "Good",    pct: session.greenPct,  color: "var(--status-green)" },
-              { label: "Caution", pct: session.yellowPct, color: "#fbbf24" },
-              { label: "Poor",    pct: session.redPct,    color: "#ff5f52" },
+              { label: "Caution", pct: session.yellowPct, color: "var(--chart-caution)" },
+              { label: "Poor",    pct: session.redPct,    color: "var(--chart-poor)" },
             ].map(({ label, pct, color }) => (
               <div key={label} className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
@@ -221,7 +221,7 @@ function SessionModal({ session, onClose }: { session: SessionRecord; onClose: (
 
 // ── Session card ──────────────────────────────────────────────────────────────
 function SessionCard({ session, index, onClick }: { session: SessionRecord; index: number; onClick: () => void }) {
-  const psiColor = session.meanPsi >= 80 ? "#4ade80" : session.meanPsi >= 60 ? "#fbbf24" : "#ff5f52";
+  const psiColor = session.meanPsi >= 80 ? "var(--chart-good)" : session.meanPsi >= 60 ? "var(--chart-caution)" : "var(--chart-poor)";
 
   return (
     <div
@@ -255,7 +255,7 @@ function SessionCard({ session, index, onClick }: { session: SessionRecord; inde
             <PsiChip value={session.meanPsi} />
             {session.fatigueFlag && (
               <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(255,95,82,0.12)", color: "#ff5f52" }}>⚡ Fatigue</span>
+                style={{ background: "rgba(255,95,82,0.12)", color: "var(--chart-poor)" }}>⚡ Fatigue</span>
             )}
           </div>
           {/* Zone bar */}
@@ -270,7 +270,7 @@ function SessionCard({ session, index, onClick }: { session: SessionRecord; inde
             { label: "PSI",      value: session.meanPsi,              unit: "",  color: psiColor },
             { label: "Duration", value: fmtDuration(session.durationSec), unit: "", color: "var(--text-muted)" },
             { label: "Accuracy", value: session.accuracy,             unit: "%", color: "var(--status-green)" },
-            { label: "Alerts",   value: session.alerts,               unit: "",  color: "#fbbf24" },
+            { label: "Alerts",   value: session.alerts,               unit: "",  color: "var(--chart-caution)" },
             { label: "Recalib.", value: session.autoRecalibs,         unit: "",  color: "var(--accent-primary)" },
           ].map(({ label, value, unit, color }) => (
             <div key={label} className="flex flex-col items-center gap-0.5">
@@ -305,7 +305,7 @@ function LiveBanner() {
   if (!isCalibrated) return null;
 
   const livePsi   = Math.round(psi);
-  const psiColor  = livePsi >= 80 ? "#4ade80" : livePsi >= 60 ? "#fbbf24" : "#ff5f52";
+  const psiColor  = livePsi >= 80 ? "var(--chart-good)" : livePsi >= 60 ? "var(--chart-caution)" : "var(--chart-poor)";
   const total     = totalSeconds || 1;
   const greenPct  = Math.round((greenSeconds  / total) * 100);
   const yellowPct = Math.round((yellowSeconds / total) * 100);
@@ -342,10 +342,10 @@ function LiveBanner() {
 
         <div className="grid grid-cols-2 gap-3 col-span-1">
           {[
-            { label: "Min PSI",    value: minPsi,       color: "#ff5f52" },
+            { label: "Min PSI",    value: minPsi,       color: "var(--chart-poor)" },
             { label: "Max PSI",    value: maxPsi,       color: "var(--status-green)" },
             { label: "Accuracy",   value: `${accuracy}%`, color: "var(--status-green)" },
-            { label: "Alerts",     value: alerts,       color: "#fbbf24" },
+            { label: "Alerts",     value: alerts,       color: "var(--chart-caution)" },
           ].map(({ label, value, color }) => (
             <div key={label}>
               <p className="text-[8px] uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>{label}</p>
@@ -360,8 +360,8 @@ function LiveBanner() {
           <div className="flex gap-3 mt-1">
             {[
               { label: "Good",    pct: greenPct,  color: "var(--status-green)" },
-              { label: "Caution", pct: yellowPct, color: "#fbbf24" },
-              { label: "Poor",    pct: redPct,    color: "#ff5f52" },
+              { label: "Caution", pct: yellowPct, color: "var(--chart-caution)" },
+              { label: "Poor",    pct: redPct,    color: "var(--chart-poor)" },
             ].map(({ label, pct, color }) => (
               <span key={label} className="flex items-center gap-1">
                 <span className="w-1 h-1 rounded-full" style={{ background: color }} />
@@ -399,11 +399,11 @@ function AggregateRow({ sessions }: { sessions: SessionRecord[] }) {
   const items = [
     { label: "Total Sessions",    value: sessions.length,          unit: "",  color: "var(--accent-primary)" },
     { label: "Total Time",        value: fmtDuration(totalTime),   unit: "",  color: "var(--text-primary)" },
-    { label: "Avg PSI",           value: avgPsi,                   unit: "",  color: avgPsi >= 80 ? "#4ade80" : avgPsi >= 60 ? "#fbbf24" : "#ff5f52" },
+    { label: "Avg PSI",           value: avgPsi,                   unit: "",  color: avgPsi >= 80 ? "var(--chart-good)" : avgPsi >= 60 ? "var(--chart-caution)" : "var(--chart-poor)" },
     { label: "Avg Accuracy",      value: avgAccuracy,              unit: "%", color: "var(--status-green)" },
-    { label: "Total Alerts",      value: totalAlerts,              unit: "",  color: "#fbbf24" },
+    { label: "Total Alerts",      value: totalAlerts,              unit: "",  color: "var(--chart-caution)" },
     { label: "Auto-recalibs",     value: totalRecalib,             unit: "",  color: "var(--accent-primary)" },
-    { label: "Fatigue Sessions",  value: fatigueCount,             unit: "",  color: "#ff5f52" },
+    { label: "Fatigue Sessions",  value: fatigueCount,             unit: "",  color: "var(--chart-poor)" },
   ];
 
   return (
@@ -463,9 +463,9 @@ export default function Reports() {
 
           {sessionHistory.length > 0 && (
             <div className="flex items-center gap-2 text-[10px] font-mono" style={{ color: "var(--text-faint)" }}>
-              <span className="w-2 h-2 rounded-full" style={{ background: "#4ade80" }} /> Good
-              <span className="w-2 h-2 rounded-full ml-2" style={{ background: "#fbbf24" }} /> Caution
-              <span className="w-2 h-2 rounded-full ml-2" style={{ background: "#ff5f52" }} /> Poor
+              <span className="w-2 h-2 rounded-full" style={{ background: "var(--chart-good)" }} /> Good
+              <span className="w-2 h-2 rounded-full ml-2" style={{ background: "var(--chart-caution)" }} /> Caution
+              <span className="w-2 h-2 rounded-full ml-2" style={{ background: "var(--chart-poor)" }} /> Poor
             </div>
           )}
         </header>

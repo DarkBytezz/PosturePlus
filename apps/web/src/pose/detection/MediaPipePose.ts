@@ -49,9 +49,24 @@ export class MediaPipePose {
 
       this.canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Draw the actual video frame first, then skeleton on top
+      this.canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
       if (results.poseLandmarks) {
-        drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS);
-        drawLandmarks(this.canvasCtx, results.poseLandmarks);
+        // connectors (thin elegant skeleton)
+        drawConnectors(this.canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {
+          color: "rgba(255,255,255,0.35)",
+          lineWidth: 3
+        });
+        this.canvasCtx.shadowBlur = 0;
+        // keypoints (premium glowing joints)
+        drawLandmarks(this.canvasCtx, results.poseLandmarks, {
+          color: "rgba(255,255,255,0.85)",
+          fillColor: "rgba(255,255,255,0.9)",
+          radius: 5
+        });
+        this.canvasCtx.shadowColor = "rgba(255,255,255,0.6)";
+        this.canvasCtx.shadowBlur = 12;
       }
 
       const structured = this.extractLandmarks(results);

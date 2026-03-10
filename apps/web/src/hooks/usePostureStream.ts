@@ -54,14 +54,14 @@ export function usePostureStream() {
     }
 
     // Load last 7 days for dashboard chart
-    fetchWeeklySummary(user.id, user.user_metadata?.timezone).then(rows => {
+    fetchWeeklySummary(user.id, user.user_metadata?.timezone).then((rows: any[]) => {
       if (!rows.length) return;
 
       // Build 7-slot array — today is slot 6, 6 days ago is slot 0
       const slots: (number | null)[] = [null, null, null, null, null, null, null];
       const todayMs = new Date().setHours(0, 0, 0, 0);
 
-      rows.forEach(row => {
+      rows.forEach((row: any) => {
         const rowMs = new Date(row.date).setHours(0, 0, 0, 0);
         const diffDays = Math.round((todayMs - rowMs) / 86400000);
         const slot = 6 - diffDays;
@@ -72,10 +72,10 @@ export function usePostureStream() {
     });
 
     // Load session history for Reports page
-    fetchSessions(user.id, 20).then(rows => {
+    fetchSessions(user.id, 20).then((rows: any[]) => {
       if (!rows.length) return;
 
-      const records: SessionRecord[] = rows.map(r => ({
+      const records: SessionRecord[] = rows.map((r: any) => ({
         id: r.id,
         date: (() => {
           const d = new Date(r.start_time);
@@ -163,16 +163,16 @@ export function usePostureStream() {
     };
 
     if (data.zone === "RED" && lastZoneRef.current !== "RED") {
-      setAlerts(prev => prev + 1);
+      setAlerts((prev: number) => prev + 1);
     }
     lastZoneRef.current = data.zone;
 
     if (data.recalibrated) {
-      setAutoRecalibs(prev => prev + 1);
+      setAutoRecalibs((prev: number) => prev + 1);
     }
 
-    setMinPsi(prev => Math.min(prev, Math.round(data.psi)));
-    setMaxPsi(prev => Math.max(prev, Math.round(data.psi)));
+    setMinPsi((prev: number) => Math.min(prev, Math.round(data.psi)));
+    setMaxPsi((prev: number) => Math.max(prev, Math.round(data.psi)));
   }, []);
 
   // ── Called when calibration completes ─────────────────────────────────────
@@ -206,12 +206,12 @@ export function usePostureStream() {
     // Session timer
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setSessionSeconds(prev => prev + 1);
-      setTotalSeconds(prev => prev + 1);
+      setSessionSeconds((prev: number) => prev + 1);
+      setTotalSeconds((prev: number) => prev + 1);
       const z = currentZoneRef.current;
-      if (z === "GREEN") setGreenSeconds(prev => prev + 1);
-      else if (z === "YELLOW") setYellowSeconds(prev => prev + 1);
-      else if (z === "RED") setRedSeconds(prev => prev + 1);
+      if (z === "GREEN") setGreenSeconds((prev: number) => prev + 1);
+      else if (z === "YELLOW") setYellowSeconds((prev: number) => prev + 1);
+      else if (z === "RED") setRedSeconds((prev: number) => prev + 1);
     }, 1000);
 
     // PSI sampler every 3s (for sparkline)
@@ -222,7 +222,7 @@ export function usePostureStream() {
 
       psiTimelineRef.current = [...psiTimelineRef.current, snap];
 
-      setPsiHistory(prev => {
+      setPsiHistory((prev: number[]) => {
         const next = [...prev, snap];
         return next.length > 120 ? next.slice(-120) : next;
       });
@@ -276,7 +276,7 @@ export function usePostureStream() {
   }) => {
     const timeline = psiTimelineRef.current;
     const meanPsi = timeline.length > 0
-      ? Math.round(timeline.reduce((a, b) => a + b, 0) / timeline.length)
+      ? Math.round(timeline.reduce((a: number, b: number) => a + b, 0) / timeline.length)
       : 0;
 
     const total = opts.totalSec || 1;
@@ -312,7 +312,7 @@ export function usePostureStream() {
       sdi: opts.sdi,
     };
 
-    setSessionHistory(prev => [record, ...prev].slice(0, 20));
+    setSessionHistory((prev: SessionRecord[]) => [record, ...prev].slice(0, 20));
 
     // ── Guest mode: update today's chart dot with true session average ────────
     if (!user && meanPsi > 0) {
@@ -320,7 +320,7 @@ export function usePostureStream() {
       const avg = Math.round(
         allSessions.reduce((a, s) => a + s.meanPsi, 0) / allSessions.length
       );
-      setWeeklyData(prev => {
+      setWeeklyData((prev: (number | null)[]) => {
         const next = [...prev];
         next[6] = avg;
         return next;
@@ -350,17 +350,17 @@ export function usePostureStream() {
         greenPct,
         yellowPct,
         redPct,
-        psiTimeline: timeline.slice(-40).map((psi, i) => ({ t: i * 3, psi })),
+        psiTimeline: timeline.slice(-40).map((psi: number, i: number) => ({ t: i * 3, psi })),
       };
 
       dbEndSession(sessionId, summary);
       upsertDailySummary(user.id, summary, user.user_metadata?.timezone).then(() => {
         // Refresh weekly chart after session saved
-        fetchWeeklySummary(user.id, user.user_metadata?.timezone).then(rows => {
+        fetchWeeklySummary(user.id, user.user_metadata?.timezone).then((rows: any[]) => {
           if (!rows.length) return;
           const slots: (number | null)[] = [null,null,null,null,null,null,null];
           const todayMs = new Date().setHours(0, 0, 0, 0);
-          rows.forEach(row => {
+          rows.forEach((row: any) => {
             const rowMs = new Date(row.date).setHours(0, 0, 0, 0);
             const diffDays = Math.round((todayMs - rowMs) / 86400000);
             const slot = 6 - diffDays;

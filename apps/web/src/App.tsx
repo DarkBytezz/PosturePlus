@@ -10,7 +10,7 @@ import { useAuth } from "./hooks/useAuth";
 function AppInner() {
   const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [isGuest, setIsGuest]     = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   if (loading) {
     return (
@@ -32,19 +32,15 @@ function AppInner() {
   }
 
   if (!user && !isGuest) {
-    return (
-      <LandingPage
-        onGuestEnter={() => setIsGuest(true)}
-      />
-    );
+    return <LandingPage onGuestEnter={() => setIsGuest(true)} />;
   }
 
   const renderPage = () => {
     switch (activeTab) {
       case "dashboard": return <Dashboard />;
-      case "monitor":   return <Monitor />;
-      case "reports":   return <Reports />;
-      case "settings":  return (
+      case "monitor": return <Monitor />;
+      case "reports": return <Reports />;
+      case "settings": return (
         <div className="p-8 flex items-center justify-center h-full">
           <p style={{ color: "var(--text-muted)" }}>Settings — coming soon</p>
         </div>

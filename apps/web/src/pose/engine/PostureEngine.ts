@@ -25,6 +25,7 @@ export class PostureEngine {
     private pose!: MediaPipePose;
 
     private isRunning = false;
+    private externalCamera = false;  // true when camera is owned by context
 
     private featureEngine = new FeatureEngine();
     private intelligence = new PostureIntelligence();
@@ -35,6 +36,15 @@ export class PostureEngine {
 
         await this.setupCamera();
 
+        this.pose = new MediaPipePose();
+        await this.pose.initialize(canvas, this.handleResults);
+    }
+
+    // Attach to an already-running video + canvas (camera managed externally)
+    async attachExisting(video: HTMLVideoElement, canvas: HTMLCanvasElement) {
+        this.video  = video;
+        this.canvas = canvas;
+        this.externalCamera = true;  // don't stop camera tracks on engine stop()
         this.pose = new MediaPipePose();
         await this.pose.initialize(canvas, this.handleResults);
     }
@@ -74,9 +84,10 @@ export class PostureEngine {
     stop() {
         this.isRunning = false;
         this.isMounted = false;
-        this.onUpdate  = undefined;  // drop callback ref — prevents closure leaks
+        this.onUpdate  = undefined;
 
-        if (this.video && this.video.srcObject) {
+        // Only stop camera tracks if this engine owns the camera
+        if (!this.externalCamera && this.video && this.video.srcObject) {
             const tracks = (this.video.srcObject as MediaStream).getTracks();
             tracks.forEach((track) => track.stop());
             this.video.srcObject = null;

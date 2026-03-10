@@ -49,14 +49,14 @@ function DevBar({ label, value, max, color }: {
 // ── Heatmap bar ───────────────────────────────────────────────────────────────
 function HeatBar({ label, value, isWorst }: { label: string; value: number; isWorst: boolean }) {
   const pct = Math.min(value, 1) * 100;
-  const color = value > 0.6 ? "#ff5f52" : value > 0.3 ? "#fbbf24" : "var(--status-green)";
+  const color = value > 0.6 ? "var(--chart-poor)" : value > 0.3 ? "var(--chart-caution)" : "var(--status-green)";
   return (
     <div className="relative">
       <div className="flex justify-between items-center mb-1">
         <div className="flex items-center gap-1.5">
           {isWorst && (
             <span className="text-[7px] px-1 py-0.5 rounded font-bold"
-              style={{ background: "rgba(255,95,82,0.15)", color: "#ff5f52" }}>WORST</span>
+              style={{ background: "rgba(255,95,82,0.15)", color: "var(--chart-poor)" }}>WORST</span>
           )}
           <span className="text-[9px] uppercase tracking-widest font-semibold"
             style={{ color: isWorst ? color : "var(--text-faint)" }}>{label}</span>
@@ -86,11 +86,11 @@ export default function BiometricsPanel({
   const psiColor =
     psi === undefined ? "var(--text-muted)"
     : psi >= 80 ? "var(--status-green)"
-    : psi >= 60 ? "#fbbf24"
-    : "#ff5f52";
+    : psi >= 60 ? "var(--chart-caution)"
+    : "var(--chart-poor)";
 
   const zoneColor =
-    zone === "RED" ? "#ff5f52" : zone === "YELLOW" ? "#fbbf24" : "var(--status-green)";
+    zone === "RED" ? "var(--chart-poor)" : zone === "YELLOW" ? "var(--chart-caution)" : "var(--status-green)";
 
   // Worst heatmap axis
   const heatEntries = [
@@ -128,7 +128,7 @@ export default function BiometricsPanel({
         </div>
 
         {zone === "RED" && redStreakSec > 0 && (
-          <span className="text-[9px] font-mono" style={{ color: "#ff5f52" }}>
+          <span className="text-[9px] font-mono" style={{ color: "var(--chart-poor)" }}>
             {redStreakSec}s in red
           </span>
         )}
@@ -178,9 +178,9 @@ export default function BiometricsPanel({
       >
         <p className="text-[9px] uppercase tracking-widest font-semibold"
           style={{ color: "var(--text-faint)" }}>Live Deviations</p>
-        <DevBar label="Forward Lean"       value={forward_dev}  max={0.12} color={Math.abs(forward_dev)  > 0.12 ? "#ff5f52" : Math.abs(forward_dev)  > 0.06 ? "#fbbf24" : "var(--status-green)"} />
-        <DevBar label="Lateral Tilt"       value={lateral_dev}  max={0.12} color={Math.abs(lateral_dev)  > 0.12 ? "#ff5f52" : Math.abs(lateral_dev)  > 0.06 ? "#fbbf24" : "var(--status-green)"} />
-        <DevBar label="Shoulder Imbalance" value={shoulder_dev} max={0.08} color={Math.abs(shoulder_dev) > 0.08 ? "#ff5f52" : Math.abs(shoulder_dev) > 0.04 ? "#fbbf24" : "var(--status-green)"} />
+        <DevBar label="Forward Lean"       value={forward_dev}  max={0.12} color={Math.abs(forward_dev)  > 0.12 ? "var(--chart-poor)" : Math.abs(forward_dev)  > 0.06 ? "var(--chart-caution)" : "var(--status-green)"} />
+        <DevBar label="Lateral Tilt"       value={lateral_dev}  max={0.12} color={Math.abs(lateral_dev)  > 0.12 ? "var(--chart-poor)" : Math.abs(lateral_dev)  > 0.06 ? "var(--chart-caution)" : "var(--status-green)"} />
+        <DevBar label="Shoulder Imbalance" value={shoulder_dev} max={0.08} color={Math.abs(shoulder_dev) > 0.08 ? "var(--chart-poor)" : Math.abs(shoulder_dev) > 0.04 ? "var(--chart-caution)" : "var(--status-green)"} />
       </div>
 
       {/* ── Posture heatmap ─────────────────────────────────────────────── */}
@@ -208,7 +208,7 @@ export default function BiometricsPanel({
             <p className="text-[11px] leading-relaxed"
               style={{
                 color: msg.severity === "good" ? "var(--status-green)"
-                     : msg.severity === "warn" ? "#fbbf24"
+                     : msg.severity === "warn" ? "var(--chart-caution)"
                      : "var(--text-muted)",
               }}>
               {msg.text}
