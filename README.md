@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="apps\web\public\logo.png" width="100" alt="Posture+ Logo" />
+<img src="https://raw.githubusercontent.com/DarkBytezz/PosturePlus/main/apps/web/public/logo.png" width="100" alt="Posture+ Logo" />
 
 # Posture+
 
