@@ -196,12 +196,6 @@ B.E. Computer Science (AI & ML), Chandigarh University
 
 ---
 
-## License
-
-MIT — see [LICENSE](LICENSE)
-
----
-
 <div align="center">
 
 If you found this project interesting, consider leaving a ⭐
